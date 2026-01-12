@@ -1,0 +1,2 @@
+class ApiErrorFormatException(Exception):
+    pass
