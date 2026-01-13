@@ -16,15 +16,15 @@ async def setup_commands(bot: Bot) -> None:
         [
             BotCommand(
                 command="start",
-                description="Главное меню",
+                description="📲 Главное меню",
             ),
             BotCommand(
                 command="yoklama",
-                description="Посмотреть посещаемость",
+                description="🤚 Посмотреть посещаемость",
             ),
             BotCommand(
                 command="exams",
-                description="Посмотреть баллы за экзамены",
+                description="💯 Посмотреть баллы за экзамены",
             ),
         ],
     )

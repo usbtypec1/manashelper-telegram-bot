@@ -7,8 +7,11 @@ from dishka import FromDishka
 from exceptions.users import UserHasNoCredentialsException, ObisLoginException
 from filters.states.obis_credentials import ObisCredentialsStates
 from services.user import UserService
-from ui.views.base import answer_view
-from ui.views.menu import ObisMenuView, UserHasNoCredentialsView
+from ui.views.base import answer_view, edit_message_by_view
+from ui.views.menu import (
+    ObisMenuView, UserHasNoCredentialsView,
+    AcceptTermsView,
+)
 
 
 obis_credentials_router = Router(name=__name__)
@@ -30,6 +33,17 @@ async def on_user_has_no_credentials_exception(
 
 @obis_credentials_router.callback_query(F.data == "obis_credentials")
 async def on_obis_credentials_callback_query(
+    callback_query: CallbackQuery,
+    state: FSMContext,
+) -> None:
+    await state.set_state(ObisCredentialsStates.accept_terms)
+    view = AcceptTermsView()
+    await edit_message_by_view(callback_query.message, view)
+    await callback_query.answer("✅ Условия приняты")
+
+
+@obis_credentials_router.callback_query(F.data == "accept_terms")
+async def on_accept_terms_callback_query(
     callback_query: CallbackQuery,
     state: FSMContext,
 ) -> None:

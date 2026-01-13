@@ -114,3 +114,23 @@ class UserHasNoCredentialsView(TextView):
             ],
         ],
     )
+
+
+class AcceptTermsView(TextView):
+    text = "Пожалуйста, примите условия использования бота, чтобы продолжить."
+    reply_markup = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="📄 Условия использования",
+                    url="https://graph.org/Polzovatelskoe-soglashenie-manas-helper-bot-01-13",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="✅ Принять условия",
+                    callback_data="accept_terms",
+                ),
+            ],
+        ],
+    )
