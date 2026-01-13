@@ -1,19 +1,31 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import (
+    ReplyKeyboardMarkup, KeyboardButton,
+    InlineKeyboardMarkup, InlineKeyboardButton,
+)
 
+from filters.callback_data.food_menu import FoodMenuCallbackData
 from ui.views.base import TextView
 
 
 class MainMenuView(TextView):
     text = "Главное меню"
-    reply_markup = ReplyKeyboardMarkup(
-        resize_keyboard=True,
-        keyboard=[
+    reply_markup = InlineKeyboardMarkup(
+        inline_keyboard=[
             [
-                KeyboardButton(text="Йемек"),
-                KeyboardButton(text="OBIS"),
+                InlineKeyboardButton(
+                    text="🍉 Йемек",
+                    callback_data="food_menu",
+                ),
+                InlineKeyboardButton(
+                    text="🔐 OBIS",
+                    callback_data="obis_menu",
+                ),
             ],
             [
-                KeyboardButton(text="Расписание")
+                InlineKeyboardButton(
+                    text="🗓️ Расписание",
+                    callback_data="timetable_menu",
+                )
             ],
         ],
     )
@@ -32,15 +44,29 @@ class FoodMenuView(TextView):
         "🍎 На послезавтра - <code>/yemek 2</code>\n"
         "🍎 10 дней вперёд - <code>/yemek 10</code>"
     )
-    reply_markup = ReplyKeyboardMarkup(
-        resize_keyboard=True,
-        keyboard=[
+    reply_markup = InlineKeyboardMarkup(
+        inline_keyboard=[
             [
-                KeyboardButton(text="🕕 Сегодня"),
-                KeyboardButton(text="🕒 Завтра"),
+                InlineKeyboardButton(
+                    text="🕕 Сегодня",
+                    callback_data=FoodMenuCallbackData(days_to_skip=0).pack(),
+                ),
+                InlineKeyboardButton(
+                    text="🕒 Завтра",
+                    callback_data=FoodMenuCallbackData(days_to_skip=1).pack(),
+                ),
             ],
             [
-                KeyboardButton(text="Назад"),
+                InlineKeyboardButton(
+                    text="🕒 Послезавтра",
+                    callback_data=FoodMenuCallbackData(days_to_skip=2).pack(),
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🔙 Назад",
+                    callback_data="main_menu",
+                ),
             ],
         ],
     )
@@ -48,15 +74,23 @@ class FoodMenuView(TextView):
 
 class ObisMenuView(TextView):
     text = "Меню OBIS"
-    reply_markup = ReplyKeyboardMarkup(
-        resize_keyboard=True,
-        keyboard=[
+    reply_markup = InlineKeyboardMarkup(
+        inline_keyboard=[
             [
-                KeyboardButton(text="Йоклама"),
-                KeyboardButton(text="Экзамены"),
+                InlineKeyboardButton(
+                    text="✋ Йоклама",
+                    callback_data="attendance",
+                ),
+                InlineKeyboardButton(
+                    text="💯 Экзамены",
+                    callback_data="exams",
+                ),
             ],
             [
-                KeyboardButton(text="Назад"),
-            ]
+                InlineKeyboardButton(
+                    text="🔙 Назад",
+                    callback_data="main_menu",
+                ),
+            ],
         ],
     )

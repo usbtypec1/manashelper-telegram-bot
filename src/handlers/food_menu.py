@@ -1,8 +1,9 @@
 from aiogram import Router, F
 from aiogram.filters import Command, CommandObject
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from dishka import FromDishka
 
+from filters.callback_data.food_menu import FoodMenuCallbackData
 from services.food_menu import FoodMenuService
 from ui.views.base import answer_media_group_view
 from ui.views.food_menu import DailyMenuView
@@ -11,30 +12,26 @@ from ui.views.food_menu import DailyMenuView
 food_menu_router = Router(name=__name__)
 
 
-@food_menu_router.message(
-    F.text.in_(("🕕 Сегодня", "🕒 Завтра", "🕞 Послезавтра")),
-)
-async def on_food_menu_button(
-    message: Message,
+@food_menu_router.callback_query(FoodMenuCallbackData.filter())
+async def on_food_menu_callback_query(
+    callback_query: CallbackQuery,
+    callback_data: FoodMenuCallbackData,
     food_menu_service: FromDishka[FoodMenuService],
 ) -> None:
-    word_to_days_count = {
-        "🕕 Сегодня": 0,
-        "🕒 Завтра": 1,
-        "🕞 Послезавтра": 2,
-    }
-    days_to_skip: int = word_to_days_count[message.text]
-
     daily_menu_list = await food_menu_service.get_food_menu()
 
     try:
-        daily_menu = daily_menu_list[days_to_skip]
+        daily_menu = daily_menu_list[callback_data.days_to_skip]
     except IndexError:
-        await message.reply("Нет данных за указанный день 😔")
+        await callback_query.answer(
+            text="Нет данных за указанный день 😔",
+            show_alert=True,
+        )
         return
 
     view = DailyMenuView(daily_menu)
-    await answer_media_group_view(message=message, view=view)
+    await answer_media_group_view(message=callback_query.message, view=view)
+    await callback_query.answer("")
 
 
 @food_menu_router.message(Command("yemek"))

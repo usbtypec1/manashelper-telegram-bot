@@ -17,6 +17,7 @@ obis_credentials_router = Router(name=__name__)
 async def on_user_has_no_credentials_exception(
     event: ErrorEvent,
 ) -> None:
+    print("error")
     if event.update.message is not None:
         await event.update.message.answer("Пожалуйста, введите ваши данные от OBIS.")
     elif event.update.callback_query is not None:
