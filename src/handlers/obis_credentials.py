@@ -38,7 +38,6 @@ async def on_obis_credentials_callback_query(
 ) -> None:
     await state.set_state(ObisCredentialsStates.accept_terms)
     view = AcceptTermsView()
-    await callback_query.answer("✅ Условия приняты")
     await edit_message_by_view(callback_query.message, view)
 
 
@@ -48,10 +47,10 @@ async def on_accept_terms_callback_query(
     state: FSMContext,
 ) -> None:
     await state.set_state(ObisCredentialsStates.student_number)
+    await callback_query.answer("✅ Условия приняты")
     await callback_query.message.edit_text(
         "✏️ Введите ваш студенческий номер:",
     )
-    await callback_query.answer("")
 
 
 @obis_credentials_router.message(
