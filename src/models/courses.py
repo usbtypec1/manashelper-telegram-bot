@@ -12,6 +12,8 @@ class Course(BaseModel):
 class DepartmentCourses(BaseModel):
     department_id: Annotated[UUID, Field(validation_alias="departmentId")]
     department_name: Annotated[str, Field(validation_alias="departmentName")]
+    faculty_id: Annotated[UUID, Field(validation_alias="facultyId")]
+    faculty_name: Annotated[str, Field(validation_alias="facultyName")]
     courses: list[Course]
 
 

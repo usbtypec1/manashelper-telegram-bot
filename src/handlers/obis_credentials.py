@@ -38,8 +38,8 @@ async def on_obis_credentials_callback_query(
 ) -> None:
     await state.set_state(ObisCredentialsStates.accept_terms)
     view = AcceptTermsView()
-    await edit_message_by_view(callback_query.message, view)
     await callback_query.answer("✅ Условия приняты")
+    await edit_message_by_view(callback_query.message, view)
 
 
 @obis_credentials_router.callback_query(F.data == "accept_terms")
