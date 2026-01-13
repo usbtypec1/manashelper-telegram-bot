@@ -100,3 +100,17 @@ class ObisMenuView(TextView):
             ],
         ],
     )
+
+
+class UserHasNoCredentialsView(TextView):
+    text = "Пожалуйста, введите ваши данные от OBIS."
+    reply_markup = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🔑 Ввести данные от OBIS",
+                    callback_data="obis_credentials",
+                ),
+            ],
+        ],
+    )
