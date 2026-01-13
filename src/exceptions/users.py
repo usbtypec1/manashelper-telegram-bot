@@ -4,3 +4,7 @@ class UserNotFoundException(Exception):
 
 class UserHasNoCredentialsException(Exception):
     pass
+
+
+class ObisLoginException(Exception):
+    pass

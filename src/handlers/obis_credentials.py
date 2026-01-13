@@ -1,11 +1,14 @@
 from aiogram import Router, F
-from aiogram.filters import ExceptionTypeFilter
-from aiogram.types import Message, ErrorEvent
+from aiogram.filters import ExceptionTypeFilter, StateFilter
+from aiogram.fsm.context import FSMContext
+from aiogram.types import Message, ErrorEvent, CallbackQuery
 from dishka import FromDishka
 
 from exceptions.users import UserHasNoCredentialsException
-from models.user import UserCredentialsWebAppData
+from filters.states.obis_credentials import ObisCredentialsStates
 from services.user import UserService
+from ui.views.base import answer_view
+from ui.views.menu import ObisMenuView
 
 
 obis_credentials_router = Router(name=__name__)
@@ -17,7 +20,6 @@ obis_credentials_router = Router(name=__name__)
 async def on_user_has_no_credentials_exception(
     event: ErrorEvent,
 ) -> None:
-    print("error")
     if event.update.message is not None:
         await event.update.message.answer("Пожалуйста, введите ваши данные от OBIS.")
     elif event.update.callback_query is not None:
@@ -27,19 +29,51 @@ async def on_user_has_no_credentials_exception(
         )
 
 
+@obis_credentials_router.callback_query(F.data == "obis_credentials")
+async def on_obis_credentials_callback_query(
+    callback_query: CallbackQuery,
+    state: FSMContext,
+) -> None:
+    await state.set_state(ObisCredentialsStates.student_number)
+    await callback_query.message.edit_text(
+        "✏️ Введите ваш студенческий номер:",
+    )
+    await callback_query.answer("")
+
 
 @obis_credentials_router.message(
-    F.web_app_data.button_text == "Ввести данные от OBIS",
+    F.text,
+    StateFilter(ObisCredentialsStates.student_number),
 )
-async def on_obis_credentials_enter(
+async def on_student_number_enter(
     message: Message,
+    state: FSMContext,
+) -> None:
+    student_number = message.text.removesuffix("@manas.edu.kg")
+    await state.update_data(student_number=student_number)
+    await state.set_state(ObisCredentialsStates.password)
+    await message.answer("✏️ Введите ваш пароль от OBIS:")
+
+
+@obis_credentials_router.message(
+    F.text,
+    StateFilter(ObisCredentialsStates.password),
+)
+async def on_password_enter(
+    message: Message,
+    state: FSMContext,
     user_service: FromDishka[UserService],
 ) -> None:
-    user_credentials = UserCredentialsWebAppData.model_validate_json(
-        message.web_app_data.data,
-    )
+    data = await state.get_data()
+    student_number = data["student_number"]
+    plain_password = message.text
+
     await user_service.update_user_credentials(
         user_id=message.from_user.id,
-        student_number=user_credentials.student_number,
-        plain_password=user_credentials.plain_password.get_secret_value(),
+        student_number=student_number,
+        plain_password=plain_password,
     )
+    await state.clear()
+    await message.answer("✅ Ваши данные от OBIS успешно сохранены.")
+    view = ObisMenuView()
+    await answer_view(message, view)

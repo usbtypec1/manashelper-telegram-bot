@@ -1,6 +1,7 @@
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from aiogram.fsm.storage.memory import MemoryStorage
 from dishka import Provider, Scope, provide
 
 from setup.config.telegram_bot import TelegramBotToken
@@ -20,4 +21,4 @@ class TelegramBotProvider(Provider):
 
     @provide
     def provide_dispatcher(self) -> Dispatcher:
-        return Dispatcher()
+        return Dispatcher(storage=MemoryStorage())

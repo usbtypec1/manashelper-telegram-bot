@@ -88,6 +88,12 @@ class ObisMenuView(TextView):
             ],
             [
                 InlineKeyboardButton(
+                    text="🔑 Ввести данные от OBIS",
+                    callback_data="obis_credentials",
+                ),
+            ],
+            [
+                InlineKeyboardButton(
                     text="🔙 Назад",
                     callback_data="main_menu",
                 ),

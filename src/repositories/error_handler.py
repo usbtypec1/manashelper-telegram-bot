@@ -5,7 +5,7 @@ from enums.api_error_code import ApiErrorCode
 from exceptions.api import ApiErrorFormatException
 from exceptions.users import (
     UserNotFoundException,
-    UserHasNoCredentialsException,
+    UserHasNoCredentialsException, ObisLoginException,
 )
 from models.api import ApiError
 
@@ -13,6 +13,7 @@ from models.api import ApiError
 API_ERROR_CODE_TO_EXCEPTION_CLASS = {
     ApiErrorCode.USER_NOT_FOUND: UserNotFoundException,
     ApiErrorCode.USER_HAS_NO_CREDENTIALS: UserHasNoCredentialsException,
+    ApiErrorCode.OBIS_LOGIN_FAILED: ObisLoginException,
 }
 
 
