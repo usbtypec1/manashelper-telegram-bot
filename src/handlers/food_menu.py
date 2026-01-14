@@ -12,6 +12,7 @@ from filters.callback_data.food_menu import (
 from services.food_menu import FoodMenuService
 from ui.views.base import answer_media_group_view, answer_view
 from ui.views.food_menu import DailyMenuView, DailyMenuRateSuggestionView
+from ui.views.menu import FoodMenuView
 
 
 food_menu_router = Router(name=__name__)
@@ -75,6 +76,8 @@ async def on_food_menu_command(
     food_menu_service: FromDishka[FoodMenuService],
 ) -> None:
     if not command.args:
+        view = FoodMenuView()
+        await answer_view(message, view)
         return
 
     word_to_days_count = {
