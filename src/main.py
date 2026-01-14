@@ -19,6 +19,10 @@ async def setup_commands(bot: Bot) -> None:
                 description="📲 Главное меню",
             ),
             BotCommand(
+                command="yemek",
+                description="🍽️ Посмотреть меню йемека",
+            ),
+            BotCommand(
                 command="yoklama",
                 description="🤚 Посмотреть посещаемость",
             ),
