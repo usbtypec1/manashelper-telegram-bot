@@ -3,6 +3,7 @@ from aiogram.filters import Command, CommandObject
 from aiogram.types import Message, CallbackQuery
 from dishka import FromDishka
 
+from exceptions.food_menu import DailyMenuNotFoundException
 from filters.callback_data.food_menu import FoodMenuCallbackData
 from services.food_menu import FoodMenuService
 from ui.views.base import answer_media_group_view
@@ -18,9 +19,16 @@ async def on_food_menu_callback_query(
     callback_data: FoodMenuCallbackData,
     food_menu_service: FromDishka[FoodMenuService],
 ) -> None:
-    daily_menu = await food_menu_service.get_food_menu(
-        days_to_skip=callback_data.days_to_skip,
-    )
+    try:
+        daily_menu = await food_menu_service.get_food_menu(
+            days_to_skip=callback_data.days_to_skip,
+        )
+    except DailyMenuNotFoundException:
+        await callback_query.answer(
+            "Меню на этот день недоступно 😔",
+            show_alert=True,
+        )
+        return
 
     view = DailyMenuView(daily_menu)
     await answer_media_group_view(message=callback_query.message, view=view)
@@ -49,9 +57,16 @@ async def on_food_menu_command(
         await message.reply("Не могу распознать день 😔")
         return
 
-    daily_menu = await food_menu_service.get_food_menu(
-        days_to_skip=days_to_skip,
-    )
+    try:
+        daily_menu = await food_menu_service.get_food_menu(
+            days_to_skip=days_to_skip,
+        )
+    except DailyMenuNotFoundException:
+        await message.answer(
+            "Меню на этот день недоступно 😔",
+            show_alert=True,
+        )
+        return
 
     view = DailyMenuView(daily_menu)
     await answer_media_group_view(message=message, view=view)

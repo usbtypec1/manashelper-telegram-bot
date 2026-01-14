@@ -1,0 +1,2 @@
+class DailyMenuNotFoundException(Exception):
+    pass
