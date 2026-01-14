@@ -1,6 +1,7 @@
 import datetime
+from uuid import UUID
 
-from models.food_menu import DailyMenu
+from models.food_menu import DailyMenu, DailyMenuRating
 from repositories.error_handler import handle_api_errors
 from repositories.http_client import ApiHttpClient
 
@@ -19,3 +20,25 @@ class FoodMenuRepository:
         handle_api_errors(response)
         return DailyMenu.model_validate_json(response.text)
 
+    async def get_daily_menu_rating(
+        self,
+        *,
+        user_id: int,
+        daily_menu_id: UUID,
+    ) -> DailyMenuRating:
+        url = f"/food-menu/{daily_menu_id}/ratings/users/{user_id}"
+        response = await self.__http_client.get(url)
+        handle_api_errors(response)
+        return DailyMenuRating.model_validate_json(response.text)
+
+    async def update_daily_menu_rating(
+        self,
+        *,
+        user_id: int,
+        daily_menu_id: UUID,
+        score: int,
+    ) -> None:
+        url = f"/food-menu/{daily_menu_id}/ratings/"
+        request_data = {"score": score, "userId": user_id, "comment": None}
+        response = await self.__http_client.put(url, json=request_data)
+        handle_api_errors(response)

@@ -17,3 +17,7 @@ class DailyMenu(BaseModel):
     date: datetime.date
     average_rating_score: Annotated[float, Field(alias="averageRatingScore")]
     ratings_count: Annotated[int, Field(alias="ratingsCount")]
+
+
+class DailyMenuRating(BaseModel):
+    score: float

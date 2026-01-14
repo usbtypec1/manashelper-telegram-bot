@@ -4,13 +4,36 @@ from aiogram.types import Message, CallbackQuery
 from dishka import FromDishka
 
 from exceptions.food_menu import DailyMenuNotFoundException
-from filters.callback_data.food_menu import FoodMenuCallbackData
+from filters.callback_data.food_menu import (
+    FoodMenuCallbackData,
+    DailyMenuRatingCallbackData,
+)
 from services.food_menu import FoodMenuService
-from ui.views.base import answer_media_group_view
-from ui.views.food_menu import DailyMenuView
+from ui.views.base import answer_media_group_view, answer_view
+from ui.views.food_menu import DailyMenuView, DailyMenuRateSuggestionView
 
 
 food_menu_router = Router(name=__name__)
+
+
+@food_menu_router.callback_query(DailyMenuRatingCallbackData.filter())
+async def on_daily_menu_rating_callback_query(
+    callback_query: CallbackQuery,
+    callback_data: DailyMenuRatingCallbackData,
+    food_menu_service: FromDishka[FoodMenuService],
+) -> None:
+    await food_menu_service.update_daily_menu_rating(
+        user_id=callback_query.from_user.id,
+        daily_menu_id=callback_data.daily_menu_id,
+        score=callback_data.score,
+    )
+    await callback_query.answer(
+        text="Спасибо за вашу оценку! ❤️",
+        show_alert=True,
+    )
+    await callback_query.message.edit_text(
+        f"Вы поставили оценку {callback_data.score} ⭐️",
+    )
 
 
 @food_menu_router.callback_query(FoodMenuCallbackData.filter())
@@ -33,6 +56,14 @@ async def on_food_menu_callback_query(
     view = DailyMenuView(daily_menu)
     await answer_media_group_view(message=callback_query.message, view=view)
     await callback_query.answer("")
+
+    is_daily_menu_rated = await food_menu_service.is_daily_menu_rated_by_user(
+        user_id=callback_query.from_user.id,
+        daily_menu_id=daily_menu.id,
+    )
+    if not is_daily_menu_rated:
+        view = DailyMenuRateSuggestionView(daily_menu_id=daily_menu.id)
+        await answer_view(callback_query.message, view)
 
 
 @food_menu_router.message(Command("yemek"))
@@ -70,3 +101,11 @@ async def on_food_menu_command(
 
     view = DailyMenuView(daily_menu)
     await answer_media_group_view(message=message, view=view)
+
+    is_daily_menu_rated = await food_menu_service.is_daily_menu_rated_by_user(
+        user_id=message.from_user.id,
+        daily_menu_id=daily_menu.id,
+    )
+    if not is_daily_menu_rated:
+        view = DailyMenuRateSuggestionView(daily_menu_id=daily_menu.id)
+        await answer_view(message, view)

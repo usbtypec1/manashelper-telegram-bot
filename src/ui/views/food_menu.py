@@ -1,10 +1,15 @@
 import datetime
+from uuid import UUID
 
-from aiogram.types import InputMediaPhoto
+from aiogram.types import (
+    InputMediaPhoto, InlineKeyboardMarkup,
+    InlineKeyboardButton,
+)
 from aiogram.utils.media_group import MediaType
 
+from filters.callback_data.food_menu import DailyMenuRatingCallbackData
 from models.food_menu import DailyMenu
-from ui.views.base import MediaGroupView
+from ui.views.base import MediaGroupView, TextView, ReplyMarkup
 
 
 def get_weekday_name(date: datetime.date) -> str:
@@ -51,7 +56,7 @@ class DailyMenuView(MediaGroupView):
             lines.append(f"🌱 Калории: {dish.calories}")
 
         total_calories = sum(
-            [dish.calories for dish in self.__daily_menu.dishes]
+            [dish.calories for dish in self.__daily_menu.dishes],
         )
 
         lines.append(f"\n🔥 <b>Сумма калорий: {total_calories}</b>")
@@ -61,7 +66,30 @@ class DailyMenuView(MediaGroupView):
                 "⭐ Сегодняшняя средняя оценка:"
                 f" {self.__daily_menu.average_rating_score:.1f} "
                 f"({self.__daily_menu.ratings_count}"
-                f" {inflate_word_rating(self.__daily_menu.ratings_count)})"
+                f" {inflate_word_rating(self.__daily_menu.ratings_count)})",
             )
 
         return "\n".join(lines)
+
+
+class DailyMenuRateSuggestionView(TextView):
+    text = "🍽️ Как вам сегодняшний йемек? Оцените его!"
+
+    def __init__(self, daily_menu_id: UUID) -> None:
+        self.__daily_menu_id = daily_menu_id
+
+    def get_reply_markup(self) -> InlineKeyboardMarkup:
+        return InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text=str(score),
+                        callback_data=DailyMenuRatingCallbackData(
+                            daily_menu_id=self.__daily_menu_id,
+                            score=score,
+                        ).pack(),
+                    )
+                    for score in range(1, 6)
+                ]
+            ],
+        )
