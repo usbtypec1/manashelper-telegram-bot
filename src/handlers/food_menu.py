@@ -1,4 +1,5 @@
 from aiogram import Router
+from aiogram.enums import ChatType
 from aiogram.filters import Command, CommandObject
 from aiogram.types import Message, CallbackQuery
 from dishka import FromDishka
@@ -31,9 +32,10 @@ async def on_daily_menu_rating_callback_query(
         text="Спасибо за вашу оценку! ❤️",
         show_alert=True,
     )
-    await callback_query.message.edit_text(
-        f"Вы поставили оценку {callback_data.score} ⭐️",
-    )
+    if callback_query.message.chat.type == ChatType.PRIVATE:
+        await callback_query.message.edit_text(
+            f"Вы поставили оценку {callback_data.score} ⭐️",
+        )
 
 
 @food_menu_router.callback_query(FoodMenuCallbackData.filter())
