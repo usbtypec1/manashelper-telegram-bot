@@ -1,5 +1,6 @@
 import datetime
 from typing import Annotated
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
@@ -11,5 +12,8 @@ class Dish(BaseModel):
 
 
 class DailyMenu(BaseModel):
+    id: UUID
     dishes: list[Dish]
     date: datetime.date
+    average_rating_score: Annotated[float, Field(alias="averageRatingScore")]
+    ratings_count: Annotated[int, Field(alias="ratingsCount")]

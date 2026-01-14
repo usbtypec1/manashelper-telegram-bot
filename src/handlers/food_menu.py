@@ -1,4 +1,4 @@
-from aiogram import Router, F
+from aiogram import Router
 from aiogram.filters import Command, CommandObject
 from aiogram.types import Message, CallbackQuery
 from dishka import FromDishka
@@ -18,16 +18,9 @@ async def on_food_menu_callback_query(
     callback_data: FoodMenuCallbackData,
     food_menu_service: FromDishka[FoodMenuService],
 ) -> None:
-    daily_menu_list = await food_menu_service.get_food_menu()
-
-    try:
-        daily_menu = daily_menu_list[callback_data.days_to_skip]
-    except IndexError:
-        await callback_query.answer(
-            text="Нет данных за указанный день 😔",
-            show_alert=True,
-        )
-        return
+    daily_menu = await food_menu_service.get_food_menu(
+        days_to_skip=callback_data.days_to_skip,
+    )
 
     view = DailyMenuView(daily_menu)
     await answer_media_group_view(message=callback_query.message, view=view)
@@ -56,13 +49,9 @@ async def on_food_menu_command(
         await message.reply("Не могу распознать день 😔")
         return
 
-    daily_menu_list = await food_menu_service.get_food_menu()
-
-    try:
-        daily_menu = daily_menu_list[days_to_skip]
-    except IndexError:
-        await message.reply("Нет данных за указанный день 😔")
-        return
+    daily_menu = await food_menu_service.get_food_menu(
+        days_to_skip=days_to_skip,
+    )
 
     view = DailyMenuView(daily_menu)
     await answer_media_group_view(message=message, view=view)

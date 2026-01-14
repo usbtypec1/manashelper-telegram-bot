@@ -1,4 +1,4 @@
-from pydantic import TypeAdapter
+import datetime
 
 from models.food_menu import DailyMenu
 from repositories.error_handler import handle_api_errors
@@ -10,8 +10,12 @@ class FoodMenuRepository:
     def __init__(self, http_client: ApiHttpClient):
         self.__http_client = http_client
 
-    async def get_food_menu(self) -> list[DailyMenu]:
-        response = await self.__http_client.get("/food-menu")
+    async def get_food_menu(
+        self,
+        date: datetime.date,
+    ) -> DailyMenu:
+        params = {"date": f'{date:%Y-%m-%d}'}
+        response = await self.__http_client.get("/food-menu", params=params)
         handle_api_errors(response)
-        type_adapter = TypeAdapter(list[DailyMenu])
-        return type_adapter.validate_json(response.text)
+        return DailyMenu.model_validate_json(response.text)
+
