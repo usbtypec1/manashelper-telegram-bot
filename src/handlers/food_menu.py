@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from aiogram import Router, F
 from aiogram.enums import ChatType
 from aiogram.filters import Command, CommandObject, StateFilter
@@ -34,14 +36,16 @@ async def on_daily_menu_comment_message(
 ) -> None:
     data = await state.get_data()
     score: int | None = data.get("score")
-    if score is None or not isinstance(score, int):
+    daily_menu_id: str | None = data.get("daily_menu_id")
+    if score is None or daily_menu_id is None:
         await message.reply("Произошла ошибка. Пожалуйста, попробуйте снова.")
         await state.clear()
         return
+    daily_menu_id: UUID = UUID(daily_menu_id)
 
     await food_menu_service.update_daily_menu_rating(
         user_id=message.from_user.id,
-        daily_menu_id=data["daily_menu_id"],
+        daily_menu_id=daily_menu_id,
         score=score,
         comment=message.text,
     )
@@ -57,6 +61,7 @@ async def on_daily_menu_comment_callback_query(
 ) -> None:
     await state.set_state(DailyMenuRatingCommentStates.comment)
     await state.update_data(score=callback_data.score)
+    await state.update_data(daily_menu_id=str(callback_data.daily_menu_id))
 
     if callback_data.score <= 3:
         text = "Жаль, что вам не понравилось меню. Укажите пожалуйста, что именно вам не понравилось. 😊"
