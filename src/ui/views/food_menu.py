@@ -157,7 +157,7 @@ class DailyMenuCommentListView(TextView):
         for rating in self.__ratings:
             lines.append(
                 f"- {rating.user_full_name}: {rating.comment}"
-                f"({rating.score:.1f} ⭐️)\n",
+                f" (⭐️ {rating.score:.1f})\n",
             )
 
         return "\n".join(lines)
