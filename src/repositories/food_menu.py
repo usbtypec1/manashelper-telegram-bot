@@ -37,8 +37,9 @@ class FoodMenuRepository:
         user_id: int,
         daily_menu_id: UUID,
         score: int,
+        comment: str | None = None,
     ) -> None:
         url = f"/food-menu/{daily_menu_id}/ratings"
-        request_data = {"score": score, "userId": user_id, "comment": None}
+        request_data = {"score": score, "userId": user_id, "comment": comment}
         response = await self.__http_client.put(url, json=request_data)
         handle_api_errors(response)

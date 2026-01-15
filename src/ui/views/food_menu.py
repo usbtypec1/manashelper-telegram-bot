@@ -7,7 +7,10 @@ from aiogram.types import (
 )
 from aiogram.utils.media_group import MediaType
 
-from filters.callback_data.food_menu import DailyMenuRatingCallbackData
+from filters.callback_data.food_menu import (
+    DailyMenuRatingCallbackData,
+    DailyMenuCommentCallbackData,
+)
 from models.food_menu import DailyMenu
 from ui.views.base import MediaGroupView, TextView, ReplyMarkup
 
@@ -91,5 +94,30 @@ class DailyMenuRateSuggestionView(TextView):
                     )
                     for score in range(1, 6)
                 ]
+            ],
+        )
+
+
+class DailyMenuRatedView(TextView):
+
+    def __init__(self, daily_menu_id: UUID, score: int) -> None:
+        self.__daily_menu_id = daily_menu_id
+        self.__score = score
+
+    def get_text(self) -> str:
+        return f"Вы поставили оценку {self.__score} ⭐️"
+
+    def get_reply_markup(self) -> InlineKeyboardMarkup:
+        return InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="Оставить комментарий 📝",
+                        callback_data=DailyMenuCommentCallbackData(
+                            daily_menu_id=self.__daily_menu_id,
+                            score=self.__score,
+                        ).pack(),
+                    ),
+                ],
             ],
         )

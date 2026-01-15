@@ -44,9 +44,11 @@ class FoodMenuService:
         user_id: int,
         daily_menu_id: UUID,
         score: int,
+        comment: str | None = None,
     ) -> None:
         await self.__food_menu_repository.update_daily_menu_rating(
             user_id=user_id,
             daily_menu_id=daily_menu_id,
             score=score,
+            comment=comment,
         )
