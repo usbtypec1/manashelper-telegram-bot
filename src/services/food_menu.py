@@ -2,8 +2,7 @@ import datetime
 from uuid import UUID
 from zoneinfo import ZoneInfo
 
-from exceptions.food_menu import DailyMenuRatingNotFoundException
-from models.food_menu import DailyMenu
+from models.food_menu import DailyMenu, DailyMenuRating
 from repositories.food_menu import FoodMenuRepository
 
 
@@ -29,14 +28,22 @@ class FoodMenuService:
         user_id: int,
         daily_menu_id: UUID,
     ) -> bool:
-        try:
-            await self.__food_menu_repository.get_daily_menu_rating(
-                user_id=user_id,
-                daily_menu_id=daily_menu_id,
-            )
-        except DailyMenuRatingNotFoundException:
-            return False
-        return True
+        ratings = await self.__food_menu_repository.get_daily_menu_rating(
+            daily_menu_id=daily_menu_id,
+            user_id=user_id,
+        )
+        return len(ratings) > 0
+
+    async def get_daily_menu_ratings_with_comments(
+        self,
+        daily_menu_id: UUID,
+    ) -> list[DailyMenuRating]:
+        ratings = await self.__food_menu_repository.get_daily_menu_rating(
+            daily_menu_id=daily_menu_id,
+        )
+        return [
+            rating for rating in ratings if rating.comment is not None
+        ]
 
     async def update_daily_menu_rating(
         self,

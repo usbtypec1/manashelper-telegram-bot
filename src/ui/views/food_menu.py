@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Iterable
 from uuid import UUID
 
 from aiogram.types import (
@@ -9,9 +10,9 @@ from aiogram.utils.media_group import MediaType
 
 from filters.callback_data.food_menu import (
     DailyMenuRatingCallbackData,
-    DailyMenuCommentCallbackData,
+    DailyMenuCommentCallbackData, DailyMenuShowCommentsCallbackData,
 )
-from models.food_menu import DailyMenu
+from models.food_menu import DailyMenu, DailyMenuRating
 from ui.views.base import MediaGroupView, TextView, ReplyMarkup
 
 
@@ -121,3 +122,42 @@ class DailyMenuRatedView(TextView):
                 ],
             ],
         )
+
+
+class DailyMenuShowCommentsView(TextView):
+    text = "💬 Посмотреть отзывы о сегодняшнем йемеке"
+
+    def __init__(self, daily_menu_id: UUID) -> None:
+        self.__daily_menu_id = daily_menu_id
+
+    def get_reply_markup(self) -> InlineKeyboardMarkup:
+        return InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="Посмотреть отзывы 💬",
+                        callback_data=DailyMenuShowCommentsCallbackData(
+                            daily_menu_id=self.__daily_menu_id,
+                        ).pack(),
+                    ),
+                ]
+            ],
+        )
+
+
+class DailyMenuCommentListView(TextView):
+    def __init__(self, ratings: Iterable[DailyMenuRating]) -> None:
+        self.__ratings = ratings
+
+    def get_text(self) -> str:
+        if not self.__ratings:
+            return "Пока что нет отзывов о сегодняшнем йемеке. Станьте первым, кто оставит отзыв! 📝"
+
+        lines: list[str] = ["💬 <b>Отзывы о сегодняшнем йемеке:</b>\n"]
+        for rating in self.__ratings:
+            lines.append(
+                f"- {rating.user_full_name}: {rating.comment}"
+                f"({rating.score:.1f} ⭐️)\n",
+            )
+
+        return "\n".join(lines)

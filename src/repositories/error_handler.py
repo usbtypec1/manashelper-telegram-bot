@@ -5,7 +5,6 @@ from enums.api_error_code import ApiErrorCode
 from exceptions.api import ApiErrorFormatException, ValidationException
 from exceptions.food_menu import (
     DailyMenuNotFoundException,
-    DailyMenuRatingNotFoundException,
 )
 from exceptions.users import (
     UserNotFoundException,
@@ -21,7 +20,6 @@ API_ERROR_CODE_TO_EXCEPTION_CLASS = {
     ApiErrorCode.OBIS_LOGIN_FAILED: ObisLoginException,
     ApiErrorCode.VALIDATION_FAILED: ValidationException,
     ApiErrorCode.DAILY_MENU_NOT_FOUND: DailyMenuNotFoundException,
-    ApiErrorCode.DAILY_MENU_RATING_NOT_FOUND: DailyMenuRatingNotFoundException,
 }
 
 

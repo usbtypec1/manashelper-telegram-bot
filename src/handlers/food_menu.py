@@ -11,6 +11,7 @@ from exceptions.food_menu import DailyMenuNotFoundException
 from filters.callback_data.food_menu import (
     FoodMenuCallbackData,
     DailyMenuRatingCallbackData, DailyMenuCommentCallbackData,
+    DailyMenuShowCommentsCallbackData,
 )
 from filters.states.food_menu import DailyMenuRatingCommentStates
 from services.food_menu import FoodMenuService
@@ -20,12 +21,26 @@ from ui.views.base import (
 )
 from ui.views.food_menu import (
     DailyMenuView, DailyMenuRateSuggestionView,
-    DailyMenuRatedView,
+    DailyMenuRatedView, DailyMenuShowCommentsView, DailyMenuCommentListView,
 )
 from ui.views.menu import FoodMenuView
 
 
 food_menu_router = Router(name=__name__)
+
+
+@food_menu_router.callback_query(DailyMenuShowCommentsCallbackData.filter())
+async def on_daily_menu_show_comments_callback_query(
+    callback_query: CallbackQuery,
+    callback_data: DailyMenuShowCommentsCallbackData,
+    food_menu_service: FromDishka[FoodMenuService],
+) -> None:
+    ratings = await food_menu_service.get_daily_menu_ratings_with_comments(
+        daily_menu_id=callback_data.daily_menu_id,
+    )
+    view = DailyMenuCommentListView(ratings=ratings)
+    await answer_view(callback_query.message, view)
+    await callback_query.answer("")
 
 
 @food_menu_router.message(F.text, StateFilter(DailyMenuRatingCommentStates.comment))
@@ -115,11 +130,19 @@ async def on_food_menu_callback_query(
     await answer_media_group_view(message=callback_query.message, view=view)
     await callback_query.answer("")
 
-    is_daily_menu_rated = await food_menu_service.is_daily_menu_rated_by_user(
-        user_id=callback_query.from_user.id,
-        daily_menu_id=daily_menu.id,
-    )
-    if not is_daily_menu_rated:
+    if daily_menu.has_comments:
+        view = DailyMenuShowCommentsView(daily_menu_id=daily_menu.id)
+        await answer_view(callback_query.message, view)
+
+    is_private = callback_query.message.chat.type == ChatType.PRIVATE
+    should_show: bool = True
+    if is_private:
+        should_show = not await food_menu_service.is_daily_menu_rated_by_user(
+            user_id=callback_query.from_user.id,
+            daily_menu_id=daily_menu.id,
+        )
+
+    if should_show:
         view = DailyMenuRateSuggestionView(daily_menu_id=daily_menu.id)
         await answer_view(callback_query.message, view)
 
@@ -162,10 +185,18 @@ async def on_food_menu_command(
     view = DailyMenuView(daily_menu)
     await answer_media_group_view(message=message, view=view)
 
-    is_daily_menu_rated = await food_menu_service.is_daily_menu_rated_by_user(
-        user_id=message.from_user.id,
-        daily_menu_id=daily_menu.id,
-    )
-    if not is_daily_menu_rated:
+    if daily_menu.has_comments:
+        view = DailyMenuShowCommentsView(daily_menu_id=daily_menu.id)
+        await answer_view(message, view)
+
+    is_private = message.chat.type == ChatType.PRIVATE
+    should_show: bool = True
+    if is_private:
+        should_show = not await food_menu_service.is_daily_menu_rated_by_user(
+            user_id=message.from_user.id,
+            daily_menu_id=daily_menu.id,
+        )
+
+    if should_show:
         view = DailyMenuRateSuggestionView(daily_menu_id=daily_menu.id)
         await answer_view(message, view)

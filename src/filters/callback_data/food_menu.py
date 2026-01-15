@@ -15,3 +15,9 @@ class DailyMenuRatingCallbackData(CallbackData, prefix="daily_menu_rating"):
 class DailyMenuCommentCallbackData(CallbackData, prefix="daily_menu_comment"):
     daily_menu_id: UUID
     score: int
+
+
+class DailyMenuShowCommentsCallbackData(
+    CallbackData, prefix="daily_menu_show_comments",
+):
+    daily_menu_id: UUID

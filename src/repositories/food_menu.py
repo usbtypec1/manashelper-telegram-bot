@@ -1,6 +1,8 @@
 import datetime
 from uuid import UUID
 
+from pydantic import TypeAdapter
+
 from models.food_menu import DailyMenu, DailyMenuRating
 from repositories.error_handler import handle_api_errors
 from repositories.http_client import ApiHttpClient
@@ -23,13 +25,17 @@ class FoodMenuRepository:
     async def get_daily_menu_rating(
         self,
         *,
-        user_id: int,
         daily_menu_id: UUID,
-    ) -> DailyMenuRating:
-        url = f"/food-menu/{daily_menu_id}/ratings/users/{user_id}"
-        response = await self.__http_client.get(url)
+        user_id: int | None = None,
+    ) -> list[DailyMenuRating]:
+        url = f"/food-menu/{str(daily_menu_id)}/ratings"
+        params = {}
+        if user_id is not None:
+            params["userId"] = user_id
+        response = await self.__http_client.get(url, params=params)
         handle_api_errors(response)
-        return DailyMenuRating.model_validate_json(response.text)
+        type_adapter = TypeAdapter(list[DailyMenuRating])
+        return type_adapter.validate_json(response.text)
 
     async def update_daily_menu_rating(
         self,
