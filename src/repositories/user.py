@@ -2,6 +2,7 @@ from pydantic import TypeAdapter
 
 from models.attendance import LessonAttendance
 from models.exam import LessonExams
+from models.users import UsersStatistics
 from repositories.error_handler import handle_api_errors
 from repositories.http_client import ApiHttpClient
 
@@ -59,3 +60,9 @@ class UserRepository:
         handle_api_errors(response)
         type_adapter = TypeAdapter(list[LessonExams])
         return type_adapter.validate_json(response.text)
+
+    async def get_users_statistics(self) -> UsersStatistics:
+        url = "/users/statistics"
+        response = await self.__http_client.get(url)
+        handle_api_errors(response)
+        return UsersStatistics.model_validate_json(response.text)

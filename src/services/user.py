@@ -5,6 +5,7 @@ from models.attendance import (
     LessonAttendanceAndSkipsOpportunity,
 )
 from models.exam import LessonExams
+from models.users import UsersStatistics
 from repositories.user import UserRepository
 
 
@@ -98,3 +99,6 @@ class UserService:
         user_id: int,
     ) -> list[LessonExams]:
         return await self.__user_repository.get_user_exams(user_id)
+
+    async def get_users_statistics(self) -> UsersStatistics:
+        return await self.__user_repository.get_users_statistics()

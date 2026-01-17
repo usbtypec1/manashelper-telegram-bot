@@ -25,7 +25,13 @@ class MainMenuView(TextView):
                 InlineKeyboardButton(
                     text="🗓️ Расписание",
                     callback_data="timetable_menu",
-                )
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text="ℹ️ О боте",
+                    callback_data="about",
+                ),
             ],
         ],
     )

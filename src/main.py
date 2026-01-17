@@ -30,6 +30,10 @@ async def setup_commands(bot: Bot) -> None:
                 command="exams",
                 description="💯 Посмотреть баллы за экзамены",
             ),
+            BotCommand(
+                command="about",
+                description="ℹ️ Информация о боте",
+            ),
         ],
     )
 

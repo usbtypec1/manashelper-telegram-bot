@@ -1,5 +1,6 @@
 from aiogram import Router
 
+from handlers.about import about_router
 from handlers.attendance import attendance_router
 from handlers.exams import exams_router
 from handlers.food_menu import food_menu_router
@@ -16,4 +17,5 @@ def get_routers() -> tuple[Router, ...]:
         exams_router,
         food_menu_router,
         timetable_router,
+        about_router,
     )
