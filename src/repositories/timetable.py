@@ -3,7 +3,10 @@ from uuid import UUID
 
 from pydantic import TypeAdapter
 
-from models.courses import DepartmentCourses, UserTrackingCourses
+from models.courses import (
+    DepartmentCourses, UserTrackingCourses,
+    CourseTimetable,
+)
 from models.departments import FacultyDepartments
 from models.faculties import Faculty
 from repositories.error_handler import handle_api_errors
@@ -14,6 +17,13 @@ class TimetableRepository:
 
     def __init__(self, http_client: ApiHttpClient):
         self.__http_client = http_client
+
+    async def get_course_timetable(self, course_id: int) -> CourseTimetable:
+        url = "/timetable"
+        params = {"courseId": course_id}
+        response = await self.__http_client.get(url, params=params)
+        handle_api_errors(response)
+        return CourseTimetable.model_validate_json(response.text)
 
     async def get_faculties(self) -> list[Faculty]:
         url = "/timetable/faculties"

@@ -6,16 +6,42 @@ from exceptions.api import ValidationException
 from filters.callback_data.timetable import (
     FacultyCallbackData,
     DepartmentCallbackData, CourseCallbackData,
+    CourseSpecificWeekdayTimetableCallbackData,
 )
 from services.timetable import TimetableService
 from ui.views.base import edit_message_by_view
 from ui.views.timetable import (
     UserTrackingCourseListView, FacultyListView,
     DepartmentListView, CourseListView,
+    CourseWeekdayTimetableChooseView, CourseSpecificWeekdayTimetableView,
 )
 
 
 timetable_router = Router(name=__name__)
+
+
+@timetable_router.callback_query(
+    CourseSpecificWeekdayTimetableCallbackData.filter(),
+)
+async def on_course_timetable_show_weekday_callback_query(
+    callback_query: CallbackQuery,
+    callback_data: CourseSpecificWeekdayTimetableCallbackData,
+    timetable_service: FromDishka[TimetableService],
+) -> None:
+    timetable = await timetable_service.get_course_timetable_by_weekday(
+        user_id=callback_query.from_user.id,
+        weekday=callback_data.weekday,
+    )
+    view = CourseSpecificWeekdayTimetableView(timetable)
+    await edit_message_by_view(callback_query.message, view)
+
+
+@timetable_router.callback_query(F.data == "view_timetable")
+async def on_view_timetable_callback_query(
+    callback_query: CallbackQuery,
+) -> None:
+    view = CourseWeekdayTimetableChooseView()
+    await edit_message_by_view(callback_query.message, view)
 
 
 @timetable_router.callback_query(F.data == "timetable_menu")

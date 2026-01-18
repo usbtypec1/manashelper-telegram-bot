@@ -1,4 +1,6 @@
+import datetime
 from collections.abc import Iterable
+from zoneinfo import ZoneInfo
 
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
@@ -6,11 +8,88 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from filters.callback_data.timetable import (
     FacultyCallbackData,
     DepartmentCallbackData, CourseCallbackData,
+    CourseSpecificWeekdayTimetableCallbackData,
 )
-from models.courses import UserTrackingCourses, DepartmentCourses
+from models.courses import (
+    UserTrackingCourses, DepartmentCourses,
+    WeekdayCourseTimetable,
+)
 from models.departments import FacultyDepartments
 from models.faculties import Faculty
 from ui.views.base import TextView
+
+
+class CourseSpecificWeekdayTimetableView(TextView):
+    reply_markup = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🔙 Назад",
+                    callback_data="view_timetable",
+                ),
+            ],
+        ],
+    )
+
+    def __init__(self, timetable: WeekdayCourseTimetable):
+        self.__timetable = timetable
+
+    def get_text(self) -> str:
+        timezone = ZoneInfo("Asia/Bishkek")
+        now = datetime.datetime.now(timezone)
+        weekdays = ("понедельник", "вторник", "среду", "четверг", "пятницу")
+        weekday_name = weekdays[self.__timetable.weekday - 1]
+        lines: list[str] = [f"<b>Расписание на {weekday_name}:</b>"]
+        if not self.__timetable.lessons:
+            lines.append("Пар нет! 🎉")
+            return "\n".join(lines)
+
+        for period_lessons in self.__timetable.lessons:
+            is_now = (
+                period_lessons.starts_at <= now.time() <= period_lessons.ends_at
+            )
+            is_next = (
+                period_lessons.starts_at <= (now + datetime.timedelta(
+                minutes=45,
+            )).time() <= period_lessons.ends_at
+            )
+            emoji_prefix = ""
+            if is_now:
+                emoji_prefix = "🔥 "
+            elif is_next:
+                emoji_prefix = "⏱️🐇 "
+            period = f"{emoji_prefix}{period_lessons.starts_at:%H:%M} - {period_lessons.ends_at:%H:%M}"
+            lines.append(f"\n<b>{period}</b>")
+            prefix = "• " if len(period_lessons.lessons) > 1 else ""
+            for lesson in period_lessons.lessons:
+                lines.append(
+                    f"<b>{prefix}{lesson.name}</b>\n"
+                    f"  🏫 {lesson.location}",
+                )
+        return "\n".join(lines)
+
+
+class CourseWeekdayTimetableChooseView(TextView):
+    text = "Выберите день недели:"
+
+    def get_reply_markup(self) -> InlineKeyboardMarkup:
+        builder = InlineKeyboardBuilder()
+        timezone = ZoneInfo("Asia/Bishkek")
+        now = datetime.datetime.now(timezone)
+        for number, weekday in enumerate(
+            ("Пн", "Вт", "Ср", "Чт", "Пт"),
+            start=1,
+        ):
+            if number == now.isoweekday():
+                weekday = f"✅ {weekday}"
+            builder.button(
+                text=weekday,
+                callback_data=CourseSpecificWeekdayTimetableCallbackData(
+                    weekday=number,
+                ),
+            )
+        builder.button(text="🔙 Назад", callback_data="timetable_menu")
+        return builder.adjust(5, repeat=True).as_markup()
 
 
 class UserTrackingCourseListView(TextView):
@@ -18,8 +97,20 @@ class UserTrackingCourseListView(TextView):
         inline_keyboard=[
             [
                 InlineKeyboardButton(
+                    text="🗓️ Посмотреть расписание",
+                    callback_data="view_timetable",
+                ),
+            ],
+            [
+                InlineKeyboardButton(
                     text="⚙️ Настроить отслеживание",
                     callback_data="edit_tracking_courses",
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🔙 Назад",
+                    callback_data="main_menu",
                 ),
             ],
         ],

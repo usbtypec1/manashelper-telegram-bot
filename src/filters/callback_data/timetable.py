@@ -14,3 +14,10 @@ class DepartmentCallbackData(CallbackData, prefix="department"):
 class CourseCallbackData(CallbackData, prefix="course"):
     course_id: int
     department_id: UUID
+
+
+class CourseSpecificWeekdayTimetableCallbackData(
+    CallbackData,
+    prefix="show_weekday",
+):
+    weekday: int

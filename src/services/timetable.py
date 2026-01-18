@@ -1,6 +1,11 @@
+from collections import defaultdict
 from uuid import UUID
 
-from models.courses import UserTrackingCourses, DepartmentCourses
+from models.courses import (
+    UserTrackingCourses, DepartmentCourses,
+    WeekdayCoursePeriodLesson, WeekdayCoursePeriodLessons,
+    WeekdayCourseTimetable,
+)
 from models.departments import FacultyDepartments
 from models.faculties import Faculty
 from repositories.timetable import TimetableRepository
@@ -43,3 +48,46 @@ class TimetableService:
 
     async def get_courses(self, department_id: UUID) -> DepartmentCourses:
         return await self.__timetable_repository.get_courses(department_id)
+
+    async def get_course_timetable_by_weekday(
+        self,
+        user_id: int,
+        weekday: int,
+    ) -> WeekdayCourseTimetable:
+        tracking = await self.__timetable_repository.get_user_tracking_courses(user_id)
+
+        all_lessons = []
+        for course in tracking.courses:
+            tt = await self.__timetable_repository.get_course_timetable(course_id=course.id)
+            all_lessons.extend(tt.lessons)
+
+        day_lessons = [l for l in all_lessons if l.weekday == weekday]
+
+        period_map: defaultdict = defaultdict(list)
+
+        for l in day_lessons:
+            period = (l.starts_at, l.ends_at)
+            period_map[period].append(
+                WeekdayCoursePeriodLesson(
+                    name=l.name,
+                    teacher_name=l.teacher_name,
+                    location=l.location,
+                    type=l.type,
+                )
+            )
+
+        sorted_periods = sorted(period_map.keys(), key=lambda p: (p[0], p[1]))
+
+        period_blocks = [
+            WeekdayCoursePeriodLessons(
+                starts_at=start,
+                ends_at=end,
+                lessons=period_map[(start, end)],
+            )
+            for (start, end) in sorted_periods
+        ]
+
+        return WeekdayCourseTimetable(
+            weekday=weekday,
+            lessons=period_blocks,
+        )

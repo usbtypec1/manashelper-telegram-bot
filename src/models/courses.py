@@ -1,3 +1,4 @@
+import datetime
 from typing import Annotated
 from uuid import UUID
 
@@ -26,3 +27,36 @@ class TrackingCourse(BaseModel):
 class UserTrackingCourses(BaseModel):
     user_id: Annotated[int, Field(validation_alias="userId")]
     courses: list[TrackingCourse]
+
+
+class CourseTimetableLesson(BaseModel):
+    name: str
+    teacher_name: Annotated[str, Field(validation_alias="teacherName")]
+    location: str
+    starts_at: Annotated[datetime.time, Field(validation_alias="startsAt")]
+    ends_at: Annotated[datetime.time, Field(validation_alias="endsAt")]
+    weekday: int
+    type: str
+
+
+class CourseTimetable(BaseModel):
+    course_id: Annotated[int, Field(validation_alias="courseId")]
+    lessons: list[CourseTimetableLesson]
+
+
+class WeekdayCoursePeriodLesson(BaseModel):
+    name: str
+    teacher_name: str
+    location: str
+    type: str
+
+
+class WeekdayCoursePeriodLessons(BaseModel):
+    starts_at: datetime.time
+    ends_at: datetime.time
+    lessons: list[WeekdayCoursePeriodLesson]
+
+
+class WeekdayCourseTimetable(BaseModel):
+    weekday: int
+    lessons: list[WeekdayCoursePeriodLessons]
