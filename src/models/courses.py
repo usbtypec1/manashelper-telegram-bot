@@ -30,6 +30,7 @@ class UserTrackingCourses(BaseModel):
 
 
 class CourseTimetableLesson(BaseModel):
+    course_id: Annotated[int, Field(validation_alias="courseId")]
     name: str
     teacher_name: Annotated[str, Field(validation_alias="teacherName")]
     location: str
@@ -37,11 +38,6 @@ class CourseTimetableLesson(BaseModel):
     ends_at: Annotated[datetime.time, Field(validation_alias="endsAt")]
     weekday: int
     type: str
-
-
-class CourseTimetable(BaseModel):
-    course_id: Annotated[int, Field(validation_alias="courseId")]
-    lessons: list[CourseTimetableLesson]
 
 
 class WeekdayCoursePeriodLesson(BaseModel):

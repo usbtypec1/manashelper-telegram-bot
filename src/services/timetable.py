@@ -55,24 +55,20 @@ class TimetableService:
         weekday: int,
     ) -> WeekdayCourseTimetable:
         tracking = await self.__timetable_repository.get_user_tracking_courses(user_id)
-
-        all_lessons = []
-        for course in tracking.courses:
-            tt = await self.__timetable_repository.get_course_timetable(course_id=course.id)
-            all_lessons.extend(tt.lessons)
-
-        day_lessons = [l for l in all_lessons if l.weekday == weekday]
+        lessons = await self.__timetable_repository.get_course_timetable(
+            course_ids=[course.id for course in tracking.courses],
+            weekday=weekday,
+        )
 
         period_map: defaultdict = defaultdict(list)
-
-        for l in day_lessons:
-            period = (l.starts_at, l.ends_at)
+        for lesson in lessons:
+            period = (lesson.starts_at, lesson.ends_at)
             period_map[period].append(
                 WeekdayCoursePeriodLesson(
-                    name=l.name,
-                    teacher_name=l.teacher_name,
-                    location=l.location,
-                    type=l.type,
+                    name=lesson.name,
+                    teacher_name=lesson.teacher_name,
+                    location=lesson.location,
+                    type=lesson.type,
                 )
             )
 

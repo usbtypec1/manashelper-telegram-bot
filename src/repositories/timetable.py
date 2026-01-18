@@ -5,7 +5,7 @@ from pydantic import TypeAdapter
 
 from models.courses import (
     DepartmentCourses, UserTrackingCourses,
-    CourseTimetable,
+    CourseTimetableLesson,
 )
 from models.departments import FacultyDepartments
 from models.faculties import Faculty
@@ -18,12 +18,17 @@ class TimetableRepository:
     def __init__(self, http_client: ApiHttpClient):
         self.__http_client = http_client
 
-    async def get_course_timetable(self, course_id: int) -> CourseTimetable:
+    async def get_course_timetable(
+        self,
+        course_ids: Iterable[int],
+        weekday: int,
+    ) -> list[CourseTimetableLesson]:
         url = "/timetable"
-        params = {"courseId": course_id}
+        params = {"courseId": tuple(course_ids), "weekday": weekday}
         response = await self.__http_client.get(url, params=params)
         handle_api_errors(response)
-        return CourseTimetable.model_validate_json(response.text)
+        type_adapter = TypeAdapter(list[CourseTimetableLesson])
+        return type_adapter.validate_json(response.text)
 
     async def get_faculties(self) -> list[Faculty]:
         url = "/timetable/faculties"
