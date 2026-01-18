@@ -46,7 +46,7 @@ class DailyMenuView(MediaGroupView):
 
     def get_medias(self) -> list[MediaType]:
         return [
-            InputMediaPhoto(media=item.photo_url)
+            InputMediaPhoto(media=item.upscaled_photo_url or item.photo_url)
             for item in self.__daily_menu.dishes
         ]
 

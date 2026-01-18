@@ -9,6 +9,10 @@ class Dish(BaseModel):
     name: str
     calories: int
     photo_url: Annotated[str, Field(validation_alias="photoUrl")]
+    upscaled_photo_url: Annotated[
+        str | None,
+        Field(validation_alias="upscaledPhotoUrl"),
+    ]
 
 
 class DailyMenu(BaseModel):
