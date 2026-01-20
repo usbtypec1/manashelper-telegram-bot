@@ -1,6 +1,6 @@
 [project]
 name = "manashelper-bot"
-version = "1.0.0"
+version = "1.2.0"
 description = "Telegram bot for the Manashelper project."
 requires-python = ">=3.13"
 dependencies = [

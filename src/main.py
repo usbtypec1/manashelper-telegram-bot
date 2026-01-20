@@ -31,6 +31,10 @@ async def setup_commands(bot: Bot) -> None:
                 description="💯 Посмотреть баллы за экзамены",
             ),
             BotCommand(
+                command="timetable",
+                description="📅 Посмотреть расписание занятий",
+            ),
+            BotCommand(
                 command="about",
                 description="ℹ️ Информация о боте",
             ),
