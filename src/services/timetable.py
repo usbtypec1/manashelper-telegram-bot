@@ -1,5 +1,7 @@
+import datetime
 from collections import defaultdict
 from uuid import UUID
+from zoneinfo import ZoneInfo
 
 from models.courses import (
     UserTrackingCourses, DepartmentCourses,
@@ -86,4 +88,16 @@ class TimetableService:
         return WeekdayCourseTimetable(
             weekday=weekday,
             lessons=period_blocks,
+        )
+
+    async def get_timetable_for_today(
+        self,
+        *,
+        user_id: int,
+    ) -> WeekdayCourseTimetable:
+        timezone = ZoneInfo("Asia/Bishkek")
+        today = datetime.datetime.now(timezone)
+        return await self.get_course_timetable_by_weekday(
+            user_id=user_id, 
+            weekday=today.isoweekday(),
         )

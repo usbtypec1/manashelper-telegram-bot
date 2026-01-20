@@ -1,5 +1,6 @@
 from aiogram import Router, F
-from aiogram.types import CallbackQuery
+from aiogram.filters import Command
+from aiogram.types import CallbackQuery, Message
 from dishka import FromDishka
 
 from exceptions.api import ValidationException
@@ -9,7 +10,7 @@ from filters.callback_data.timetable import (
     CourseSpecificWeekdayTimetableCallbackData,
 )
 from services.timetable import TimetableService
-from ui.views.base import edit_message_by_view
+from ui.views.base import edit_message_by_view, answer_view
 from ui.views.timetable import (
     UserTrackingCourseListView, FacultyListView,
     DepartmentListView, CourseListView,
@@ -18,6 +19,18 @@ from ui.views.timetable import (
 
 
 timetable_router = Router(name=__name__)
+
+
+@timetable_router.message(Command("timetable"))
+async def on_timetable_today_command(
+    message: Message,
+    timetable_service: FromDishka[TimetableService],
+) -> None:
+    timetable = await timetable_service.get_timetable_for_today(
+        user_id=message.from_user.id,
+    )
+    view = CourseSpecificWeekdayTimetableView(timetable)
+    await answer_view(message, view)
 
 
 @timetable_router.callback_query(
