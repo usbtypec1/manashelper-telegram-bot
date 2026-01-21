@@ -16,20 +16,10 @@ from models.courses import (
 )
 from models.departments import FacultyDepartments
 from models.faculties import Faculty
-from ui.views.base import TextView
+from ui.views.base import TextView, ReplyMarkup
 
 
 class CourseSpecificWeekdayTimetableView(TextView):
-    reply_markup = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="🔙 Назад",
-                    callback_data="view_timetable",
-                ),
-            ],
-        ],
-    )
 
     def __init__(self, timetable: WeekdayCourseTimetable):
         self.__timetable = timetable
@@ -67,6 +57,35 @@ class CourseSpecificWeekdayTimetableView(TextView):
                     f"  🏫 {lesson.location}",
                 )
         return "\n".join(lines)
+
+    def get_reply_markup(self) -> InlineKeyboardMarkup:
+        row = []
+        if self.__timetable.weekday > 1:
+            row.append(
+                InlineKeyboardButton(
+                    text="⬅️ Предыдущий день",
+                    callback_data=CourseSpecificWeekdayTimetableCallbackData(
+                        weekday=self.__timetable.weekday - 1,
+                    ).pack(),
+                ),
+            )
+        if self.__timetable.weekday < 5:
+            row.append(
+                InlineKeyboardButton(
+                    text="➡️ Следующий день",
+                    callback_data=CourseSpecificWeekdayTimetableCallbackData(
+                        weekday=self.__timetable.weekday + 1,
+                    ).pack(),
+                ),
+            )
+        builder = InlineKeyboardBuilder()
+        if row:
+            builder.row(*row, width=2)
+        builder.button(
+            text="🔙 Назад",
+            callback_data="view_timetable",
+        )
+        return builder.as_markup()
 
 
 class CourseWeekdayTimetableChooseView(TextView):
