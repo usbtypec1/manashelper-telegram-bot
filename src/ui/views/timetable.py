@@ -1,5 +1,6 @@
 import datetime
 from collections.abc import Iterable
+from typing import ClassVar
 from zoneinfo import ZoneInfo
 
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -59,11 +60,12 @@ class CourseSpecificWeekdayTimetableView(TextView):
         return "\n".join(lines)
 
     def get_reply_markup(self) -> InlineKeyboardMarkup:
+        weekdays = ("Понедельник", "Вторник", "Среда", "Четверг", "Пятница")
         row = []
         if self.__timetable.weekday > 1:
             row.append(
                 InlineKeyboardButton(
-                    text="⬅️ Предыдущий день",
+                    text=f"⬅️ {weekdays[self.__timetable.weekday - 2]}",
                     callback_data=CourseSpecificWeekdayTimetableCallbackData(
                         weekday=self.__timetable.weekday - 1,
                     ).pack(),
@@ -72,7 +74,7 @@ class CourseSpecificWeekdayTimetableView(TextView):
         if self.__timetable.weekday < 5:
             row.append(
                 InlineKeyboardButton(
-                    text="➡️ Следующий день",
+                    text=f"➡️ {weekdays[self.__timetable.weekday]}",
                     callback_data=CourseSpecificWeekdayTimetableCallbackData(
                         weekday=self.__timetable.weekday + 1,
                     ).pack(),
