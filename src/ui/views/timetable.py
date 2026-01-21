@@ -81,9 +81,11 @@ class CourseSpecificWeekdayTimetableView(TextView):
         builder = InlineKeyboardBuilder()
         if row:
             builder.row(*row, width=2)
-        builder.button(
-            text="🔙 Назад",
-            callback_data="view_timetable",
+        builder.row(
+            InlineKeyboardButton(
+                text="🔙 Назад",
+                callback_data="view_timetable",
+            ),
         )
         return builder.as_markup()
 
