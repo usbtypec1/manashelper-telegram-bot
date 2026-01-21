@@ -295,7 +295,7 @@ wheels = [
 
 [[package]]
 name = "manashelper-bot"
-version = "0.1.0"
+version = "1.2.0"
 source = { virtual = "." }
 dependencies = [
     { name = "aiogram" },

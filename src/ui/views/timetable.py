@@ -17,7 +17,7 @@ from models.courses import (
 )
 from models.departments import FacultyDepartments
 from models.faculties import Faculty
-from ui.views.base import TextView, ReplyMarkup
+from ui.views.base import TextView
 
 
 class CourseSpecificWeekdayTimetableView(TextView):
@@ -60,50 +60,13 @@ class CourseSpecificWeekdayTimetableView(TextView):
         return "\n".join(lines)
 
     def get_reply_markup(self) -> InlineKeyboardMarkup:
-        weekdays = ("Понедельник", "Вторник", "Среда", "Четверг", "Пятница")
-        row = []
-        if self.__timetable.weekday > 1:
-            row.append(
-                InlineKeyboardButton(
-                    text=f"⬅️ {weekdays[self.__timetable.weekday - 2]}",
-                    callback_data=CourseSpecificWeekdayTimetableCallbackData(
-                        weekday=self.__timetable.weekday - 1,
-                    ).pack(),
-                ),
-            )
-        if self.__timetable.weekday < 5:
-            row.append(
-                InlineKeyboardButton(
-                    text=f"➡️ {weekdays[self.__timetable.weekday]}",
-                    callback_data=CourseSpecificWeekdayTimetableCallbackData(
-                        weekday=self.__timetable.weekday + 1,
-                    ).pack(),
-                ),
-            )
-        builder = InlineKeyboardBuilder()
-        if row:
-            builder.row(*row, width=2)
-        builder.row(
-            InlineKeyboardButton(
-                text="🔙 Назад",
-                callback_data="view_timetable",
-            ),
-        )
-        return builder.as_markup()
-
-
-class CourseWeekdayTimetableChooseView(TextView):
-    text = "Выберите день недели:"
-
-    def get_reply_markup(self) -> InlineKeyboardMarkup:
-        builder = InlineKeyboardBuilder()
         timezone = ZoneInfo("Asia/Bishkek")
-        now = datetime.datetime.now(timezone)
+        builder = InlineKeyboardBuilder()
         for number, weekday in enumerate(
             ("Пн", "Вт", "Ср", "Чт", "Пт"),
             start=1,
         ):
-            if number == now.isoweekday():
+            if number == self.__timetable.weekday:
                 weekday = f"✅ {weekday}"
             builder.button(
                 text=weekday,
@@ -111,7 +74,13 @@ class CourseWeekdayTimetableChooseView(TextView):
                     weekday=number,
                 ),
             )
-        builder.button(text="🔙 Назад", callback_data="timetable_menu")
+
+        builder.row(
+            InlineKeyboardButton(
+                text="🔙 Назад",
+                callback_data="timetable_menu",
+            ),
+        )
         return builder.adjust(5, repeat=True).as_markup()
 
 

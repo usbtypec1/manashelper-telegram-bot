@@ -1,4 +1,5 @@
 from aiogram import Router, F
+from aiogram.exceptions import TelegramAPIError
 from aiogram.filters import Command
 from aiogram.types import CallbackQuery, Message
 from dishka import FromDishka
@@ -14,7 +15,7 @@ from ui.views.base import edit_message_by_view, answer_view
 from ui.views.timetable import (
     UserTrackingCourseListView, FacultyListView,
     DepartmentListView, CourseListView,
-    CourseWeekdayTimetableChooseView, CourseSpecificWeekdayTimetableView,
+    CourseSpecificWeekdayTimetableView,
 )
 
 
@@ -46,16 +47,25 @@ async def on_course_timetable_show_weekday_callback_query(
         weekday=callback_data.weekday,
     )
     view = CourseSpecificWeekdayTimetableView(timetable)
-    await edit_message_by_view(callback_query.message, view)
+    try:
+        await edit_message_by_view(callback_query.message, view)
+    except TelegramAPIError as error:
+        if error.message != "Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message":
+            raise
     await callback_query.answer()
 
 
 @timetable_router.callback_query(F.data == "view_timetable")
 async def on_view_timetable_callback_query(
     callback_query: CallbackQuery,
+    timetable_service: FromDishka[TimetableService],
 ) -> None:
-    view = CourseWeekdayTimetableChooseView()
+    timetable = await timetable_service.get_timetable_for_today(
+        user_id=callback_query.from_user.id,
+    )
+    view = CourseSpecificWeekdayTimetableView(timetable)
     await edit_message_by_view(callback_query.message, view)
+    await callback_query.answer()
 
 
 @timetable_router.callback_query(F.data == "timetable_menu")
