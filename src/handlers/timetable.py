@@ -47,6 +47,7 @@ async def on_course_timetable_show_weekday_callback_query(
     )
     view = CourseSpecificWeekdayTimetableView(timetable)
     await edit_message_by_view(callback_query.message, view)
+    await callback_query.answer()
 
 
 @timetable_router.callback_query(F.data == "view_timetable")
