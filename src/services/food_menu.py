@@ -83,7 +83,8 @@ class FoodMenuService:
         score: int,
         comment: str | None = None,
     ) -> None:
-        comment = sanitize_comment(comment)
+        if comment is not None:
+            comment = sanitize_comment(comment)
         await self.__food_menu_repository.update_daily_menu_rating(
             user_id=user_id,
             daily_menu_id=daily_menu_id,
