@@ -2,7 +2,7 @@ from pydantic import TypeAdapter
 
 from models.attendance import LessonAttendance
 from models.exam import LessonExams
-from models.users import UsersStatistics
+from models.users import UsersStatistics, UserGetResponse, UserUpdateRequest
 from repositories.error_handler import handle_api_errors
 from repositories.http_client import ApiHttpClient
 
@@ -11,6 +11,25 @@ class UserRepository:
 
     def __init__(self, http_client: ApiHttpClient):
         self.__http_client = http_client
+
+    async def get_user_by_id(self, user_id: int) -> UserGetResponse:
+        url = f"/users/{user_id}"
+        response = await self.__http_client.get(url)
+        handle_api_errors(response)
+        return UserGetResponse.model_validate_json(response.text)
+
+    async def update_user_by_id(
+        self,
+        *,
+        user_id: int,
+        request_data: UserUpdateRequest,
+    ) -> None:
+        url = f"/users/{user_id}"
+        response = await self.__http_client.put(
+            url,
+            json=request_data.model_dump(),
+        )
+        handle_api_errors(response)
 
     async def upsert_user(
         self,
