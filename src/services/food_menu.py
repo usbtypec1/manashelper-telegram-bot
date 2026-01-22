@@ -6,6 +6,36 @@ from models.food_menu import DailyMenu, DailyMenuRating
 from repositories.food_menu import FoodMenuRepository
 
 
+def escape_html(text: str) -> str:
+    return (
+        text.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "")
+        .replace("'", "")
+    )
+
+
+def remove_extra_spaces(text: str) -> str:
+    return ' '.join(text.split())
+
+
+def remove_newlines(text: str) -> str:
+    return text.replace('\n', ' ').replace('\r', ' ')
+
+
+def sanitize_comment(comment: str) -> str | None:
+    sanitized = comment.strip()
+    sanitizers = (
+        remove_newlines,
+        remove_extra_spaces,
+        escape_html,
+    )
+    for sanitizer in sanitizers:
+        sanitized = sanitizer(sanitized)
+    return sanitized if sanitized else None
+
+
 class FoodMenuService:
 
     def __init__(self, food_menu_repository: FoodMenuRepository):
@@ -53,6 +83,7 @@ class FoodMenuService:
         score: int,
         comment: str | None = None,
     ) -> None:
+        comment = sanitize_comment(comment)
         await self.__food_menu_repository.update_daily_menu_rating(
             user_id=user_id,
             daily_menu_id=daily_menu_id,
