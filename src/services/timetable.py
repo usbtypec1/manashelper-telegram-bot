@@ -97,6 +97,8 @@ class TimetableService:
     ) -> WeekdayCourseTimetable:
         timezone = ZoneInfo("Asia/Bishkek")
         today = datetime.datetime.now(timezone)
+        if today.isoweekday() in (6, 7):
+            today += datetime.timedelta(days=(8 - today.isoweekday()))
         return await self.get_course_timetable_by_weekday(
             user_id=user_id, 
             weekday=today.isoweekday(),
