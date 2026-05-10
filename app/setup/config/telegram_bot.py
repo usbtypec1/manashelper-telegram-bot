@@ -8,4 +8,4 @@ TelegramBotToken = NewType("TelegramBotToken", SecretStr)
 
 class TelegramBotSettings(BaseModel):
     token: TelegramBotToken
-    webhook_url: HttpUrl
+    webhook_url: str

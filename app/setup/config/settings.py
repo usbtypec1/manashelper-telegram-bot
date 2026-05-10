@@ -14,6 +14,6 @@ def load_settings(
     return AppSettings(
         telegram_bot=TelegramBotSettings(
             token=TelegramBotToken(SecretStr(os.getenv("TELEGRAM_BOT_TOKEN"))),
-            webhook_url=HttpUrl(os.getenv("TELEGRAM_BOT_WEBHOOK_URL")),
+            webhook_url=os.getenv("TELEGRAM_BOT_WEBHOOK_URL"),
         )
     )
