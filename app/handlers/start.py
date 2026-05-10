@@ -14,15 +14,16 @@ start_router = Router(name=__name__)
 @start_router.message(CommandStart())
 async def on_start_command(
     message: Message,
-    user_service: FromDishka[UserService],
+    **kwargs
 ) -> None:
+    print(kwargs)
     view = MainMenuView()
     await answer_view(message, view)
-    await user_service.upsert_user(
-        user_id=message.from_user.id,
-        full_name=message.from_user.full_name,
-        username=message.from_user.username,
-    )
+    # await user_service.upsert_user(
+    #     user_id=message.from_user.id,
+    #     full_name=message.from_user.full_name,
+    #     username=message.from_user.username,
+    # )
 
 
 @start_router.callback_query(F.data == "main_menu")
