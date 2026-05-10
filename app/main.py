@@ -1,14 +1,53 @@
 import asyncio
 import sys
+from contextlib import asynccontextmanager
 
+import uvicorn
 from aiogram import Dispatcher, Bot
-from aiogram.types import BotCommand
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import BotCommand, Update
 from dishka import make_async_container
 from dishka.integrations.aiogram import setup_dishka
+from fastapi import FastAPI, Request, Response, status
 
 from handlers.registry import get_routers
-from setup.config.settings import load_settings_from_toml_file, AppSettings
+from setup.config.settings import load_settings, AppSettings
 from setup.ioc.registry import get_providers
+
+
+settings = load_settings()
+bot = Bot(
+    token=settings.telegram_bot.token.get_secret_value(),
+    default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+)
+dispatcher = Dispatcher(storage=MemoryStorage())
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await setup_commands(bot)
+    container = make_async_container(
+        *get_providers(),
+        context={AppSettings: settings},
+    )
+    dispatcher.include_routers(*get_routers())
+
+    setup_dishka(router=dispatcher, container=container, auto_inject=True)
+
+    await setup_commands(bot)
+    await bot.set_webhook(url=settings.telegram_bot.webhook_url)
+    yield
+
+app = FastAPI(title="Manashelper", lifespan=lifespan)
+
+
+@app.post("/")
+async def on_update(request: Request):
+    update = Update.model_validate(await request.json(), context={"bot": bot})
+    await dispatcher.feed_update(bot, update)
+    return Response(status_code=status.HTTP_200_OK)
 
 
 async def setup_commands(bot: Bot) -> None:
@@ -42,27 +81,8 @@ async def setup_commands(bot: Bot) -> None:
     )
 
 
-async def main() -> None:
-    settings = load_settings_from_toml_file()
-
-    container = make_async_container(
-        *get_providers(),
-        context={AppSettings: settings},
-    )
-
-    bot = await container.get(Bot)
-    dispatcher = await container.get(Dispatcher)
-    dispatcher.include_routers(*get_routers())
-
-    setup_dishka(router=dispatcher, container=container, auto_inject=True)
-
-    await setup_commands(bot)
-
-    await bot.delete_webhook(drop_pending_updates=True)
-    await dispatcher.start_polling(bot)
-
-
 if __name__ == '__main__':
     if sys.platform == "win32":
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    asyncio.run(main())
+
+    uvicorn.run("app:main:app", host="0.0.0.0", port=8000, reload=True)

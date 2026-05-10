@@ -1,5 +1,5 @@
 from aiogram import Router, F
-from aiogram.filters import CommandStart, or_f
+from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery
 from dishka import FromDishka
 
@@ -16,13 +16,13 @@ async def on_start_command(
     message: Message,
     user_service: FromDishka[UserService],
 ) -> None:
+    view = MainMenuView()
+    await answer_view(message, view)
     await user_service.upsert_user(
         user_id=message.from_user.id,
         full_name=message.from_user.full_name,
         username=message.from_user.username,
     )
-    view = MainMenuView()
-    await answer_view(message, view)
 
 
 @start_router.callback_query(F.data == "main_menu")
