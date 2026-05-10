@@ -2,6 +2,7 @@ from aiogram import Router, F
 from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery
 from dishka import FromDishka
+from dishka.integrations.aiogram import inject
 
 from app.services.user import UserService
 from app.ui.views.base import answer_view, edit_message_by_view
@@ -12,13 +13,14 @@ start_router = Router(name=__name__)
 
 
 @start_router.message(CommandStart())
+@inject
 async def on_start_command(
     message: Message,
-    **kwargs
+    user_service: FromDishka[UserService] = None
 ) -> None:
-    print(kwargs)
     view = MainMenuView()
     await answer_view(message, view)
+    print(user_service)
     # await user_service.upsert_user(
     #     user_id=message.from_user.id,
     #     full_name=message.from_user.full_name,
