@@ -1,6 +1,6 @@
-from models.attendance import LessonAttendance
-from models.exam import LessonExams
-from models.users import UsersStatistics, UserGetResponse, UserUpdateRequest
+from app.models.attendance import LessonAttendance
+from app.models.exam import LessonExams
+from app.models.users import UsersStatistics, UserGetResponse, UserUpdateRequest
 
 
 class UserRepository:

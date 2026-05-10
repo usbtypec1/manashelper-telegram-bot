@@ -1,13 +1,13 @@
 from aiogram import Router
 
-from handlers.about import about_router
-from handlers.attendance import attendance_router
-from handlers.exams import exams_router
-from handlers.food_menu import food_menu_router
-from handlers.global_errors import global_errors_router
-from handlers.obis_credentials import obis_credentials_router
-from handlers.start import start_router
-from handlers.timetable import timetable_router
+from app.handlers.about import about_router
+from app.handlers.attendance import attendance_router
+from app.handlers.exams import exams_router
+from app.handlers.food_menu import food_menu_router
+from app.handlers.global_errors import global_errors_router
+from app.handlers.obis_credentials import obis_credentials_router
+from app.handlers.start import start_router
+from app.handlers.timetable import timetable_router
 
 
 def get_routers() -> tuple[Router, ...]:

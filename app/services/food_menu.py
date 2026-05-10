@@ -2,8 +2,8 @@ import datetime
 from uuid import UUID
 from zoneinfo import ZoneInfo
 
-from models.food_menu import DailyMenu, DailyMenuRating
-from repositories.food_menu import FoodMenuRepository
+from app.models.food_menu import DailyMenu, DailyMenuRating
+from app.repositories.food_menu import FoodMenuRepository
 
 
 def escape_html(text: str) -> str:

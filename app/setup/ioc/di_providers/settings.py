@@ -1,8 +1,8 @@
 from dishka import Provider, Scope, provide, from_context
 from pydantic import HttpUrl
 
-from setup.config.settings import AppSettings
-from setup.config.telegram_bot import TelegramBotToken
+from app.setup.config.settings import AppSettings
+from app.setup.config.telegram_bot import TelegramBotToken
 
 
 class SettingsProvider(Provider):

@@ -1,23 +1,22 @@
 import datetime
 from collections.abc import Iterable
-from typing import ClassVar
 from zoneinfo import ZoneInfo
 
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from filters.callback_data.timetable import (
+from app.filters.callback_data.timetable import (
     FacultyCallbackData,
     DepartmentCallbackData, CourseCallbackData,
     CourseSpecificWeekdayTimetableCallbackData,
 )
-from models.courses import (
+from app.models.courses import (
     UserTrackingCourses, DepartmentCourses,
     WeekdayCourseTimetable,
 )
-from models.departments import FacultyDepartments
-from models.faculties import Faculty
-from ui.views.base import TextView
+from app.models.departments import FacultyDepartments
+from app.models.faculties import Faculty
+from app.ui.views.base import TextView
 
 
 class CourseSpecificWeekdayTimetableView(TextView):

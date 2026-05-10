@@ -12,9 +12,9 @@ from dishka import make_async_container
 from dishka.integrations.aiogram import setup_dishka
 from fastapi import FastAPI, Request, Response, status
 
-from handlers.registry import get_routers
-from setup.config.settings import load_settings, AppSettings
-from setup.ioc.registry import get_providers
+from app.handlers.registry import get_routers
+from app.setup.config.settings import load_settings, AppSettings
+from app.setup.ioc.registry import get_providers
 
 
 settings = load_settings()

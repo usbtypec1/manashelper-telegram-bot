@@ -4,15 +4,15 @@ from aiogram.filters import Command
 from aiogram.types import CallbackQuery, Message
 from dishka import FromDishka
 
-from exceptions.api import ValidationException
-from filters.callback_data.timetable import (
+from app.exceptions.api import ValidationException
+from app.filters.callback_data.timetable import (
     FacultyCallbackData,
     DepartmentCallbackData, CourseCallbackData,
     CourseSpecificWeekdayTimetableCallbackData,
 )
-from services.timetable import TimetableService
-from ui.views.base import edit_message_by_view, answer_view
-from ui.views.timetable import (
+from app.services.timetable import TimetableService
+from app.ui.views.base import edit_message_by_view, answer_view
+from app.ui.views.timetable import (
     UserTrackingCourseListView, FacultyListView,
     DepartmentListView, CourseListView,
     CourseSpecificWeekdayTimetableView,

@@ -1,8 +1,8 @@
 from collections.abc import Iterable
 from typing import override
 
-from models.attendance import LessonAttendanceAndSkipsOpportunity
-from ui.views.base import TextView
+from app.models.attendance import LessonAttendanceAndSkipsOpportunity
+from app.ui.views.base import TextView
 
 
 def inflect_word_skips(count: int) -> str:

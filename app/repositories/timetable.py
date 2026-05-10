@@ -1,12 +1,12 @@
 from collections.abc import Iterable
 from uuid import UUID
 
-from models.courses import (
+from app.models.courses import (
     DepartmentCourses, UserTrackingCourses,
     CourseTimetableLesson,
 )
-from models.departments import FacultyDepartments
-from models.faculties import Faculty
+from app.models.departments import FacultyDepartments
+from app.models.faculties import Faculty
 
 
 class TimetableRepository:

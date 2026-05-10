@@ -2,7 +2,7 @@ import os
 
 from pydantic import BaseModel, SecretStr, HttpUrl
 
-from setup.config.telegram_bot import TelegramBotSettings, TelegramBotToken
+from app.setup.config.telegram_bot import TelegramBotSettings, TelegramBotToken
 
 
 class AppSettings(BaseModel):

@@ -4,11 +4,11 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ErrorEvent, CallbackQuery
 from dishka import FromDishka
 
-from exceptions.users import UserHasNoCredentialsException, ObisLoginException
-from filters.states.obis_credentials import ObisCredentialsStates
-from services.user import UserService
-from ui.views.base import answer_view, edit_message_by_view
-from ui.views.menu import (
+from app.exceptions.users import UserHasNoCredentialsException, ObisLoginException
+from app.filters.states.obis_credentials import ObisCredentialsStates
+from app.services.user import UserService
+from app.ui.views.base import answer_view, edit_message_by_view
+from app.ui.views.menu import (
     ObisMenuView, UserHasNoCredentialsView,
     AcceptTermsView,
 )

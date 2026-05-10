@@ -1,12 +1,12 @@
 from typing import Final
 
-from models.attendance import (
+from app.models.attendance import (
     LessonAttendance,
     LessonAttendanceAndSkipsOpportunity,
 )
-from models.exam import LessonExams
-from models.users import UsersStatistics
-from repositories.user import UserRepository
+from app.models.exam import LessonExams
+from app.models.users import UsersStatistics
+from app.repositories.user import UserRepository
 
 
 THEORY_SKIPS_THRESHOLD: Final[int] = 30

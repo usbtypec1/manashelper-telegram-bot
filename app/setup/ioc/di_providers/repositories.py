@@ -1,8 +1,8 @@
 from dishka import Provider, Scope
 
-from repositories.food_menu import FoodMenuRepository
-from repositories.timetable import TimetableRepository
-from repositories.user import UserRepository
+from app.repositories.food_menu import FoodMenuRepository
+from app.repositories.timetable import TimetableRepository
+from app.repositories.user import UserRepository
 
 
 def repository_provider() -> Provider:

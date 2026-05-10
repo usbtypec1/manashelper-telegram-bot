@@ -1,7 +1,7 @@
 from collections.abc import Iterable
 
-from models.exam import LessonExams
-from ui.views.base import TextView
+from app.models.exam import LessonExams
+from app.ui.views.base import TextView
 
 
 def format_none(value: str | None) -> str:

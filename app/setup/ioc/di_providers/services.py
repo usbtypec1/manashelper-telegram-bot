@@ -1,8 +1,8 @@
 from dishka import Provider, Scope
 
-from services.food_menu import FoodMenuService
-from services.timetable import TimetableService
-from services.user import UserService
+from app.services.food_menu import FoodMenuService
+from app.services.timetable import TimetableService
+from app.services.user import UserService
 
 
 def service_provider() -> Provider:

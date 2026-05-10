@@ -8,12 +8,12 @@ from aiogram.types import (
 )
 from aiogram.utils.media_group import MediaType
 
-from filters.callback_data.food_menu import (
+from app.filters.callback_data.food_menu import (
     DailyMenuRatingCallbackData,
     DailyMenuCommentCallbackData, DailyMenuShowCommentsCallbackData,
 )
-from models.food_menu import DailyMenu, DailyMenuRating
-from ui.views.base import MediaGroupView, TextView, ReplyMarkup
+from app.models.food_menu import DailyMenu, DailyMenuRating
+from app.ui.views.base import MediaGroupView, TextView, ReplyMarkup
 
 
 def get_weekday_name(date: datetime.date) -> str:

@@ -1,7 +1,7 @@
 import datetime
 from uuid import UUID
 
-from models.food_menu import DailyMenu, DailyMenuRating
+from app.models.food_menu import DailyMenu, DailyMenuRating
 
 
 class FoodMenuRepository:

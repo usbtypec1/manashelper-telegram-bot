@@ -3,14 +3,14 @@ from collections import defaultdict
 from uuid import UUID
 from zoneinfo import ZoneInfo
 
-from models.courses import (
+from app.models.courses import (
     UserTrackingCourses, DepartmentCourses,
     WeekdayCoursePeriodLesson, WeekdayCoursePeriodLessons,
     WeekdayCourseTimetable,
 )
-from models.departments import FacultyDepartments
-from models.faculties import Faculty
-from repositories.timetable import TimetableRepository
+from app.models.departments import FacultyDepartments
+from app.models.faculties import Faculty
+from app.repositories.timetable import TimetableRepository
 
 
 class TimetableService:

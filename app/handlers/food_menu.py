@@ -7,23 +7,23 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from dishka import FromDishka
 
-from exceptions.food_menu import DailyMenuNotFoundException
-from filters.callback_data.food_menu import (
+from app.exceptions.food_menu import DailyMenuNotFoundException
+from app.filters.callback_data.food_menu import (
     FoodMenuCallbackData,
     DailyMenuRatingCallbackData, DailyMenuCommentCallbackData,
     DailyMenuShowCommentsCallbackData,
 )
-from filters.states.food_menu import DailyMenuRatingCommentStates
-from services.food_menu import FoodMenuService
-from ui.views.base import (
+from app.filters.states.food_menu import DailyMenuRatingCommentStates
+from app.services.food_menu import FoodMenuService
+from app.ui.views.base import (
     answer_media_group_view, answer_view,
     edit_message_by_view,
 )
-from ui.views.food_menu import (
+from app.ui.views.food_menu import (
     DailyMenuView, DailyMenuRateSuggestionView,
     DailyMenuRatedView, DailyMenuShowCommentsView, DailyMenuCommentListView,
 )
-from ui.views.menu import FoodMenuView
+from app.ui.views.menu import FoodMenuView
 
 
 food_menu_router = Router(name=__name__)

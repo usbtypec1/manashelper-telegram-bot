@@ -3,14 +3,14 @@ from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from dishka import FromDishka
 
-from services.user import UserService
-from ui.views.about import (
+from app.services.user import UserService
+from app.ui.views.about import (
     AboutView,
     AboutWhyCredentialsView,
     AboutHowItWorksView,
     AboutDeveloperView,
 )
-from ui.views.base import answer_view, edit_message_by_view
+from app.ui.views.base import answer_view, edit_message_by_view
 
 
 about_router = Router(name=__name__)

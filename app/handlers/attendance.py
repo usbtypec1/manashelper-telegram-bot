@@ -3,9 +3,9 @@ from aiogram.filters import Command
 from aiogram.types import Message
 from dishka import FromDishka
 
-from services.user import UserService
-from ui.views.attendance import UserAttendanceView
-from ui.views.base import edit_message_by_view, answer_view
+from app.services.user import UserService
+from app.ui.views.attendance import UserAttendanceView
+from app.ui.views.base import edit_message_by_view, answer_view
 
 
 attendance_router = Router(name=__name__)

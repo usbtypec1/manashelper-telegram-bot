@@ -3,8 +3,8 @@ from zoneinfo import ZoneInfo
 
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from models.users import UsersStatistics
-from ui.views.base import TextView
+from app.models.users import UsersStatistics
+from app.ui.views.base import TextView
 
 
 class AboutWhyCredentialsView(TextView):

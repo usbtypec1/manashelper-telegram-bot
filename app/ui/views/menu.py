@@ -1,10 +1,7 @@
-from aiogram.types import (
-    ReplyKeyboardMarkup, KeyboardButton,
-    InlineKeyboardMarkup, InlineKeyboardButton,
-)
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from filters.callback_data.food_menu import FoodMenuCallbackData
-from ui.views.base import TextView
+from app.filters.callback_data.food_menu import FoodMenuCallbackData
+from app.ui.views.base import TextView
 
 
 class MainMenuView(TextView):
