@@ -1,7 +1,11 @@
+import logging
+
 from aiogram import Router
 from aiogram.filters import ExceptionTypeFilter
 from aiogram.types import ErrorEvent
 
+
+log = logging.getLogger(__name__)
 
 global_errors_router = Router(name=__name__)
 
@@ -10,6 +14,7 @@ global_errors_router = Router(name=__name__)
 async def on_global_exception(
     event: ErrorEvent,
 ) -> None:
+    log.error("Unhandled exception: %s", str(event.exception))
     text = "❗️ Произошла ошибка. Информация отправлена разработчикам, скоро всё исправим! 😊"
     if event.update.message is not None:
         await event.update.message.answer(text)
