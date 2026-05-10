@@ -2,6 +2,7 @@ from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message
 from dishka import FromDishka
+from dishka.integrations.aiogram import inject
 
 from app.services.user import UserService
 from app.ui.views.base import edit_message_by_view, answer_view
@@ -12,6 +13,7 @@ exams_router = Router(name=__name__)
 
 
 @exams_router.message(Command("exams"))
+@inject
 async def on_exams_command(
     message: Message,
     user_service: FromDishka[UserService],
@@ -23,6 +25,7 @@ async def on_exams_command(
 
 
 @exams_router.callback_query(F.data == "exams")
+@inject
 async def on_exams_callback_query(
     callback_query: Message,
     user_service: FromDishka[UserService],

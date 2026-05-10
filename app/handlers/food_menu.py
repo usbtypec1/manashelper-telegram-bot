@@ -6,6 +6,7 @@ from aiogram.filters import Command, CommandObject, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from dishka import FromDishka
+from dishka.integrations.aiogram import inject
 
 from app.exceptions.food_menu import DailyMenuNotFoundException
 from app.filters.callback_data.food_menu import (
@@ -30,6 +31,7 @@ food_menu_router = Router(name=__name__)
 
 
 @food_menu_router.callback_query(DailyMenuShowCommentsCallbackData.filter())
+@inject
 async def on_daily_menu_show_comments_callback_query(
     callback_query: CallbackQuery,
     callback_data: DailyMenuShowCommentsCallbackData,
@@ -44,6 +46,7 @@ async def on_daily_menu_show_comments_callback_query(
 
 
 @food_menu_router.message(F.text, StateFilter(DailyMenuRatingCommentStates.comment))
+@inject
 async def on_daily_menu_comment_message(
     message: Message,
     state: FSMContext,
@@ -87,6 +90,7 @@ async def on_daily_menu_comment_callback_query(
 
 
 @food_menu_router.callback_query(DailyMenuRatingCallbackData.filter())
+@inject
 async def on_daily_menu_rating_callback_query(
     callback_query: CallbackQuery,
     callback_data: DailyMenuRatingCallbackData,
@@ -110,6 +114,7 @@ async def on_daily_menu_rating_callback_query(
 
 
 @food_menu_router.callback_query(FoodMenuCallbackData.filter())
+@inject
 async def on_food_menu_callback_query(
     callback_query: CallbackQuery,
     callback_data: FoodMenuCallbackData,
@@ -148,6 +153,7 @@ async def on_food_menu_callback_query(
 
 
 @food_menu_router.message(Command("yemek"))
+@inject
 async def on_food_menu_command(
     message: Message,
     command: CommandObject,

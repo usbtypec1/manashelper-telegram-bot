@@ -1,19 +1,16 @@
+from pymongo import AsyncMongoClient
+
 from app.models.attendance import LessonAttendance
 from app.models.exam import LessonExams
-from app.models.users import UsersStatistics, UserGetResponse, UserUpdateRequest
+from app.models.users import UsersStatistics, UserGetResponse
 
 
 class UserRepository:
 
-    async def get_user_by_id(self, user_id: int) -> UserGetResponse:
-        raise NotImplementedError
+    def __init__(self, mongodb_client: AsyncMongoClient):
+        self.__users = mongodb_client.users
 
-    async def update_user_by_id(
-        self,
-        *,
-        user_id: int,
-        request_data: UserUpdateRequest,
-    ) -> None:
+    async def get_user_by_id(self, user_id: int) -> UserGetResponse:
         raise NotImplementedError
 
     async def upsert_user(
@@ -22,15 +19,26 @@ class UserRepository:
         full_name: str,
         username: str | None,
     ) -> None:
-        raise NotImplementedError
+        await self.__users.update_one(
+            {"chat_id", user_id},
+            {"$set": {"full_name": full_name, "username": username}},
+            upsert=True,
+        )
 
     async def update_user_credentials(
         self,
         user_id: int,
         student_number: str,
-        plain_password: str,
+        encrypted_password: str,
     ) -> None:
-        raise NotImplementedError
+        await self.__users.update_one(
+            {"chat_id", user_id},
+            {"$set": {
+                "student_number": student_number,
+                "encrypted_password": encrypted_password,
+            }},
+            upsert=True,
+        )
 
     async def get_user_attendance(
         self,

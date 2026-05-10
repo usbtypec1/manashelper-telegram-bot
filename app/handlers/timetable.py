@@ -3,6 +3,7 @@ from aiogram.exceptions import TelegramAPIError
 from aiogram.filters import Command
 from aiogram.types import CallbackQuery, Message
 from dishka import FromDishka
+from dishka.integrations.aiogram import inject
 
 from app.exceptions.api import ValidationException
 from app.filters.callback_data.timetable import (
@@ -23,6 +24,7 @@ timetable_router = Router(name=__name__)
 
 
 @timetable_router.message(Command("timetable"))
+@inject
 async def on_timetable_today_command(
     message: Message,
     timetable_service: FromDishka[TimetableService],
@@ -37,6 +39,7 @@ async def on_timetable_today_command(
 @timetable_router.callback_query(
     CourseSpecificWeekdayTimetableCallbackData.filter(),
 )
+@inject
 async def on_course_timetable_show_weekday_callback_query(
     callback_query: CallbackQuery,
     callback_data: CourseSpecificWeekdayTimetableCallbackData,
@@ -56,6 +59,7 @@ async def on_course_timetable_show_weekday_callback_query(
 
 
 @timetable_router.callback_query(F.data == "view_timetable")
+@inject
 async def on_view_timetable_callback_query(
     callback_query: CallbackQuery,
     timetable_service: FromDishka[TimetableService],
@@ -69,6 +73,7 @@ async def on_view_timetable_callback_query(
 
 
 @timetable_router.callback_query(F.data == "timetable_menu")
+@inject
 async def on_timetable_menu_callback_query(
     callback_query: CallbackQuery,
     timetable_service: FromDishka[TimetableService],
@@ -81,6 +86,7 @@ async def on_timetable_menu_callback_query(
 
 
 @timetable_router.callback_query(F.data == "edit_tracking_courses")
+@inject
 async def on_edit_tracking_courses_callback_query(
     callback_query: CallbackQuery,
     timetable_service: FromDishka[TimetableService],
@@ -91,6 +97,7 @@ async def on_edit_tracking_courses_callback_query(
 
 
 @timetable_router.callback_query(FacultyCallbackData.filter())
+@inject
 async def on_faculty_callback_query(
     callback_query: CallbackQuery,
     callback_data: FacultyCallbackData,
@@ -104,6 +111,7 @@ async def on_faculty_callback_query(
 
 
 @timetable_router.callback_query(DepartmentCallbackData.filter())
+@inject
 async def on_department_callback_query(
     callback_query: CallbackQuery,
     callback_data: DepartmentCallbackData,
@@ -123,6 +131,7 @@ async def on_department_callback_query(
 
 
 @timetable_router.callback_query(CourseCallbackData.filter())
+@inject
 async def on_course_callback_query(
     callback_query: CallbackQuery,
     callback_data: CourseCallbackData,

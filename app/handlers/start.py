@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import Router, F
 from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery
@@ -16,19 +18,19 @@ start_router = Router(name=__name__)
 @inject
 async def on_start_command(
     message: Message,
-    user_service: FromDishka[UserService] = None
+    user_service: FromDishka[UserService]
 ) -> None:
     view = MainMenuView()
     await answer_view(message, view)
-    print(user_service)
-    # await user_service.upsert_user(
-    #     user_id=message.from_user.id,
-    #     full_name=message.from_user.full_name,
-    #     username=message.from_user.username,
-    # )
+    await user_service.upsert_user(
+        user_id=message.from_user.id,
+        full_name=message.from_user.full_name,
+        username=message.from_user.username,
+    )
 
 
 @start_router.callback_query(F.data == "main_menu")
+@inject
 async def on_main_menu_callback_query(
     callback_query: CallbackQuery,
     user_service: FromDishka[UserService],

@@ -1,5 +1,7 @@
 import datetime
+from abc import abstractmethod
 from collections import defaultdict
+from typing import Protocol, override
 from uuid import UUID
 from zoneinfo import ZoneInfo
 
@@ -13,11 +15,54 @@ from app.models.faculties import Faculty
 from app.repositories.timetable import TimetableRepository
 
 
-class TimetableService:
+class TimetableService(Protocol):
+
+    @abstractmethod
+    async def get_user_tracking_courses(
+        self,
+        user_id: int
+    ) -> UserTrackingCourses: ...
+
+    @abstractmethod
+    async def toggle_user_tracking_course(
+        self,
+        user_id: int,
+        course_id: int,
+    ) -> None: ...
+
+    @abstractmethod
+    async def get_faculties(self) -> list[Faculty]: ...
+
+    @abstractmethod
+    async def get_departments(
+        self,
+        faculty_id: UUID,
+    ) -> FacultyDepartments: ...
+
+    @abstractmethod
+    async def get_courses(self, department_id: UUID) -> DepartmentCourses: ...
+
+    @abstractmethod
+    async def get_course_timetable_by_weekday(
+        self,
+        user_id: int,
+        weekday: int,
+    ) -> WeekdayCourseTimetable: ...
+
+    @abstractmethod
+    async def get_timetable_for_today(
+        self,
+        *,
+        user_id: int,
+    ) -> WeekdayCourseTimetable: ...
+
+
+class TimetableServiceImpl(TimetableService):
 
     def __init__(self, timetable_repository: TimetableRepository):
         self.__timetable_repository = timetable_repository
 
+    @override
     async def get_user_tracking_courses(
         self,
         user_id: int,
@@ -26,6 +71,7 @@ class TimetableService:
             user_id=user_id,
         )
 
+    @override
     async def toggle_user_tracking_course(
         self,
         user_id: int,
@@ -42,21 +88,27 @@ class TimetableService:
             course_ids=course_ids,
         )
 
+    @override
     async def get_faculties(self) -> list[Faculty]:
         return await self.__timetable_repository.get_faculties()
 
+    @override
     async def get_departments(self, faculty_id: UUID) -> FacultyDepartments:
         return await self.__timetable_repository.get_departments(faculty_id)
 
+    @override
     async def get_courses(self, department_id: UUID) -> DepartmentCourses:
         return await self.__timetable_repository.get_courses(department_id)
 
+    @override
     async def get_course_timetable_by_weekday(
         self,
         user_id: int,
         weekday: int,
     ) -> WeekdayCourseTimetable:
-        tracking = await self.__timetable_repository.get_user_tracking_courses(user_id)
+        tracking = await self.__timetable_repository.get_user_tracking_courses(
+            user_id,
+        )
         lessons = await self.__timetable_repository.get_course_timetable(
             course_ids=[course.id for course in tracking.courses],
             weekday=weekday,
@@ -71,7 +123,7 @@ class TimetableService:
                     teacher_name=lesson.teacher_name,
                     location=lesson.location,
                     type=lesson.type,
-                )
+                ),
             )
 
         sorted_periods = sorted(period_map.keys(), key=lambda p: (p[0], p[1]))
@@ -90,6 +142,7 @@ class TimetableService:
             lessons=period_blocks,
         )
 
+    @override
     async def get_timetable_for_today(
         self,
         *,
@@ -100,6 +153,6 @@ class TimetableService:
         if today.isoweekday() in (6, 7):
             today += datetime.timedelta(days=(8 - today.isoweekday()))
         return await self.get_course_timetable_by_weekday(
-            user_id=user_id, 
+            user_id=user_id,
             weekday=today.isoweekday(),
         )

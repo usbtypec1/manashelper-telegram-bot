@@ -34,7 +34,8 @@ async def lifespan(app: FastAPI):
     )
     dispatcher.include_routers(*get_routers())
 
-    setup_dishka(router=dispatcher, container=container, auto_inject=True)
+    # autoinject does not work when feed_update used manually
+    setup_dishka(router=dispatcher, container=container)
 
     await setup_commands(bot)
     await bot.set_webhook(url=settings.telegram_bot.webhook_url)

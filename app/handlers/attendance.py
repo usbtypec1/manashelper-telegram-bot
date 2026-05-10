@@ -2,6 +2,7 @@ from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message
 from dishka import FromDishka
+from dishka.integrations.aiogram import inject
 
 from app.services.user import UserService
 from app.ui.views.attendance import UserAttendanceView
@@ -12,6 +13,7 @@ attendance_router = Router(name=__name__)
 
 
 @attendance_router.message(Command("yoklama"))
+@inject
 async def on_attendance_command(
     message: Message,
     user_service: FromDishka[UserService],
@@ -25,6 +27,7 @@ async def on_attendance_command(
 
 
 @attendance_router.callback_query(F.data == "attendance")
+@inject
 async def on_attendance_callback_query(
     callback_query: Message,
     user_service: FromDishka[UserService],

@@ -2,6 +2,7 @@ from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from dishka import FromDishka
+from dishka.integrations.aiogram import inject
 
 from app.services.user import UserService
 from app.ui.views.about import (
@@ -29,6 +30,7 @@ async def on_about_callback_query(callback_query: CallbackQuery) -> None:
 
 
 @about_router.callback_query(F.data == "about:why_credentials")
+@inject
 async def on_about_why_credentials_callback_query(
     callback_query: CallbackQuery,
     user_service: FromDishka[UserService],

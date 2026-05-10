@@ -1,4 +1,5 @@
-from typing import Final
+from abc import abstractmethod
+from typing import Final, Protocol, override
 
 from app.models.attendance import (
     LessonAttendance,
@@ -51,6 +52,36 @@ def compute_lesson_skip_opportunities(
         theory_skips_opportunity=theory_skippable_lessons_count,
         practice_skips_opportunity=practice_skippable_lessons_count,
     )
+
+
+class UserCreateService(Protocol):
+
+    @abstractmethod
+    async def upsert_user(
+        self,
+        user_id: int,
+        full_name: str,
+        username: str | None,
+    ) -> None: ...
+
+
+class UserCreateServiceImpl(UserCreateService):
+
+    def __init__(self, user_repository: UserRepository):
+        self.__user_repository = user_repository
+
+    @override
+    async def upsert_user(
+        self,
+        user_id: int,
+        full_name: str,
+        username: str | None,
+    ) -> None:
+        await self.__user_repository.upsert_user(
+            user_id=user_id,
+            full_name=full_name,
+            username=username,
+        )
 
 
 class UserService:

@@ -3,6 +3,7 @@ from aiogram.filters import ExceptionTypeFilter, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ErrorEvent, CallbackQuery
 from dishka import FromDishka
+from dishka.integrations.aiogram import inject
 
 from app.exceptions.users import UserHasNoCredentialsException, ObisLoginException
 from app.filters.states.obis_credentials import ObisCredentialsStates
@@ -71,6 +72,7 @@ async def on_student_number_enter(
     F.text,
     StateFilter(ObisCredentialsStates.password),
 )
+@inject
 async def on_password_enter(
     message: Message,
     state: FSMContext,
