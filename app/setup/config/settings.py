@@ -20,5 +20,5 @@ def load_settings(
             token=TelegramBotToken(SecretStr(os.getenv("TELEGRAM_BOT_TOKEN"))),
             webhook_url=os.getenv("TELEGRAM_BOT_WEBHOOK_URL"),
         ),
-        mongodb_url=MongodbUri(os.getenv("MONGO_URI")),
+        mongodb_url=MongodbUri(os.getenv("MONGODB_URI")),
     )
