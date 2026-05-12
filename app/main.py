@@ -27,19 +27,22 @@ dispatcher = Dispatcher(storage=MemoryStorage())
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await setup_commands(bot)
-    container = make_async_container(
-        *get_providers(),
-        context={AppSettings: settings},
-    )
-    dispatcher.include_routers(*get_routers())
+    try:
+        await setup_commands(bot)
+        container = make_async_container(
+            *get_providers(),
+            context={AppSettings: settings},
+        )
+        dispatcher.include_routers(*get_routers())
 
-    # autoinject does not work when feed_update used manually
-    setup_dishka(router=dispatcher, container=container)
+        # autoinject does not work when feed_update used manually
+        setup_dishka(router=dispatcher, container=container)
 
-    await setup_commands(bot)
-    await bot.set_webhook(url=settings.telegram_bot.webhook_url)
+        await bot.set_webhook(url=settings.telegram_bot.webhook_url)
+    except Exception as exc:
+        pass
     yield
+    await bot.close()
 
 app = FastAPI(title="Manashelper", lifespan=lifespan)
 
