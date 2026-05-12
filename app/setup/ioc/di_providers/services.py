@@ -1,14 +1,9 @@
 from dishka import Provider, Scope
 
-from app.services.food_menu import FoodMenuService
-from app.services.timetable import TimetableService, TimetableServiceImpl
-from app.services.user import UserService
+from app.services.food_menu import FoodMenuService, FoodMenuServiceImpl
 
 
 def service_provider() -> Provider:
     provider = Provider(scope=Scope.REQUEST)
-    provider.provide(source=UserService)
-    provider.provide(source=FoodMenuService)
-    provider.provide(source=UserService)
-    provider.provide(provides=TimetableService, source=TimetableServiceImpl)
+    provider.provide(provides=FoodMenuService, source=FoodMenuServiceImpl)
     return provider

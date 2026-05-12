@@ -1,93 +1,95 @@
 import datetime
-from uuid import UUID
-from zoneinfo import ZoneInfo
+from abc import abstractmethod
+from datetime import datetime
+from typing import NewType
+from typing import Protocol, override
 
-from app.models.food_menu import DailyMenu, DailyMenuRating
-from app.repositories.food_menu import FoodMenuRepository
+import httpx
+from bs4 import BeautifulSoup
 
-
-def escape_html(text: str) -> str:
-    return (
-        text.replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace('"', "")
-        .replace("'", "")
-    )
+from app.models.food_menu import DailyFoodMenu, FoodMenuItem
 
 
-def remove_extra_spaces(text: str) -> str:
-    return ' '.join(text.split())
+HTML = NewType('HTML', str)
 
 
-def remove_newlines(text: str) -> str:
-    return text.replace('\n', ' ').replace('\r', ' ')
+class FoodMenuApiRequestError(Exception):
+    pass
 
 
-def sanitize_comment(comment: str) -> str | None:
-    sanitized = comment.strip()
-    sanitizers = (
-        remove_newlines,
-        remove_extra_spaces,
-        escape_html,
-    )
-    for sanitizer in sanitizers:
-        sanitized = sanitizer(sanitized)
-    return sanitized if sanitized else None
+def get_food_menu_html() -> HTML:
+    url = 'https://beslenme.manas.edu.kg/menu'
+    response = httpx.get(url)
+    if response.is_error:
+        raise FoodMenuApiRequestError('Error while getting food menu html')
+    return HTML(response.text)
 
 
-class FoodMenuService:
+def parse_daily_food_menu_html(
+    *,
+    food_menu_date: BeautifulSoup,
+    food_menu_items: BeautifulSoup,
+) -> DailyFoodMenu:
+    food_menu_date = datetime.strptime(
+        food_menu_date
+        .text
+        .strip()
+        .split(' ')[0],
+        '%d.%m.%Y',
+    ).date()
+    food_items = food_menu_items.find_all('div', attrs={'class': 'item'})
 
-    def __init__(self, food_menu_repository: FoodMenuRepository):
-        self.__food_menu_repository = food_menu_repository
+    parsed_food_items: list[FoodMenuItem] = []
+    for food_item in food_items:
+        photo_url: str = food_item.find('img')['src']
+        food_name: str = food_item.find('h5').text.strip()
 
+        calories_count: int = int(
+            food_item.find('h6').text.strip().split(' ')[1],
+        )
+
+        parsed_food_items.append(
+            FoodMenuItem(
+                name=food_name,
+                calories_count=calories_count,
+                photo_url=photo_url,
+            ),
+        )
+
+    return DailyFoodMenu(items=parsed_food_items, at=food_menu_date)
+
+
+def parse_food_menu_html(html: HTML) -> list[DailyFoodMenu]:
+    soup = BeautifulSoup(html, 'lxml')
+    container = soup.find_all('div', attrs={'class': 'container'})[1]
+    titles = container.find_all('div', attrs={'class': 'mbr-section-head'})[1:]
+    bodies = container.find_all('div', attrs={'class': 'row mt-2'})
+
+    return [
+        parse_daily_food_menu_html(
+            food_menu_date=date,
+            food_menu_items=food_items,
+        ) for date, food_items in zip(titles, bodies)
+    ]
+
+
+class FoodMenuService(Protocol):
+
+    @abstractmethod
     async def get_food_menu(
         self,
         *,
         days_to_skip: int,
-    ) -> DailyMenu:
-        timezone = ZoneInfo("Asia/Bishkek")
-        date = datetime.datetime.now(timezone) + datetime.timedelta(
-            days=days_to_skip,
-        )
-        return await self.__food_menu_repository.get_food_menu(date=date)
+    ) -> DailyFoodMenu: ...
 
-    async def is_daily_menu_rated_by_user(
+
+class FoodMenuServiceImpl(FoodMenuService):
+
+    @override
+    async def get_food_menu(
         self,
         *,
-        user_id: int,
-        daily_menu_id: UUID,
-    ) -> bool:
-        ratings = await self.__food_menu_repository.get_daily_menu_rating(
-            daily_menu_id=daily_menu_id,
-            user_id=user_id,
-        )
-        return len(ratings) > 0
-
-    async def get_daily_menu_ratings_with_comments(
-        self,
-        daily_menu_id: UUID,
-    ) -> list[DailyMenuRating]:
-        ratings = await self.__food_menu_repository.get_daily_menu_rating(
-            daily_menu_id=daily_menu_id,
-        )
-        return [
-            rating for rating in ratings if rating.comment is not None
-        ]
-
-    async def update_daily_menu_rating(
-        self,
-        *,
-        user_id: int,
-        daily_menu_id: UUID,
-        score: int,
-        comment: str | None = None,
-    ) -> None:
-        if comment is not None:
-            comment = sanitize_comment(comment)
-        await self.__food_menu_repository.update_daily_menu_rating(
-            user_id=user_id,
-            daily_menu_id=daily_menu_id,
-            score=score,
-            comment=comment,
-        )
+        days_to_skip: int,
+    ) -> DailyFoodMenu:
+        menu = parse_food_menu_html(get_food_menu_html())
+        return menu[days_to_skip]

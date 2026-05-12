@@ -1,6 +1,6 @@
 from typing import NewType
 
-from pydantic import BaseModel, SecretStr, HttpUrl
+from pydantic import BaseModel, SecretStr
 
 
 TelegramBotToken = NewType("TelegramBotToken", SecretStr)
