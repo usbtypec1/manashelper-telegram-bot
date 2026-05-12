@@ -8,7 +8,7 @@ from app.models.users import UsersStatistics, UserGetResponse
 class UserRepository:
 
     def __init__(self, mongodb_client: AsyncMongoClient):
-        self.__users = mongodb_client.users
+        self.__users = mongodb_client.manashelper.users
 
     async def get_user_by_id(self, user_id: int) -> UserGetResponse:
         raise NotImplementedError
@@ -20,7 +20,7 @@ class UserRepository:
         username: str | None,
     ) -> None:
         await self.__users.update_one(
-            {"chat_id", user_id},
+            {"chat_id": user_id},
             {"$set": {"full_name": full_name, "username": username}},
             upsert=True,
         )
@@ -32,7 +32,7 @@ class UserRepository:
         encrypted_password: str,
     ) -> None:
         await self.__users.update_one(
-            {"chat_id", user_id},
+            {"chat_id": user_id},
             {"$set": {
                 "student_number": student_number,
                 "encrypted_password": encrypted_password,
