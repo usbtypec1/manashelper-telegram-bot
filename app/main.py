@@ -43,18 +43,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Manashelper", lifespan=lifespan)
 
-
-@app.get("/")
-async def index(request: Request):
-    return "<h1>Hello</h1>"
-
-
-@app.get("/cron/test")
-async def cron_test():
-    print("start cron test")
-    await bot.send_message(chat_id=896678539, text="test cron job")
-
-
 @app.post("/")
 async def on_update(request: Request):
     update = Update.model_validate(await request.json(), context={"bot": bot})
