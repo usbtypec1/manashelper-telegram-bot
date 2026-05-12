@@ -28,7 +28,6 @@ dispatcher = Dispatcher(storage=MemoryStorage())
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
-        await setup_commands(bot)
         container = make_async_container(
             *get_providers(),
             context={AppSettings: settings},
