@@ -44,6 +44,11 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Manashelper", lifespan=lifespan)
 
 
+@app.get("/")
+async def index(request: Request):
+    return "<h1>Hello</h1>"
+
+
 @app.post("/")
 async def on_update(request: Request):
     update = Update.model_validate(await request.json(), context={"bot": bot})
