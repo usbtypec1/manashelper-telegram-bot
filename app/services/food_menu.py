@@ -5,7 +5,7 @@ from typing import NewType
 from typing import Protocol, override
 
 import httpx
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 from app.models.food_menu import DailyFoodMenu, FoodMenuItem
 
@@ -17,9 +17,10 @@ class FoodMenuApiRequestError(Exception):
     pass
 
 
-def get_food_menu_html() -> HTML:
+async def get_food_menu_html() -> HTML:
     url = 'https://beslenme.manas.edu.kg/menu'
-    response = httpx.get(url)
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url)
     if response.is_error:
         raise FoodMenuApiRequestError('Error while getting food menu html')
     return HTML(response.text)
@@ -27,8 +28,8 @@ def get_food_menu_html() -> HTML:
 
 def parse_daily_food_menu_html(
     *,
-    food_menu_date: BeautifulSoup,
-    food_menu_items: BeautifulSoup,
+    food_menu_date: Tag,
+    food_menu_items: Tag,
 ) -> DailyFoodMenu:
     food_menu_date = datetime.strptime(
         food_menu_date
@@ -91,5 +92,5 @@ class FoodMenuServiceImpl(FoodMenuService):
         *,
         days_to_skip: int,
     ) -> DailyFoodMenu:
-        menu = parse_food_menu_html(get_food_menu_html())
+        menu = parse_food_menu_html(await get_food_menu_html())
         return menu[days_to_skip]
