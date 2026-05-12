@@ -27,19 +27,16 @@ dispatcher = Dispatcher(storage=MemoryStorage())
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    try:
-        container = make_async_container(
-            *get_providers(),
-            context={AppSettings: settings},
-        )
-        dispatcher.include_routers(*get_routers())
+    container = make_async_container(
+        *get_providers(),
+        context={AppSettings: settings},
+    )
+    dispatcher.include_routers(*get_routers())
 
-        # autoinject does not work when feed_update used manually
-        setup_dishka(router=dispatcher, container=container)
+    # autoinject does not work when feed_update used manually
+    setup_dishka(router=dispatcher, container=container)
 
-        await bot.set_webhook(url=settings.telegram_bot.webhook_url)
-    except Exception as exc:
-        pass
+    await bot.set_webhook(url=settings.telegram_bot.webhook_url)
     yield
     await bot.close()
 
